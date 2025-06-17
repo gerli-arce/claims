@@ -17,6 +17,8 @@ class Reclamacion extends Model
         'correo_electronico',
         'telefono',
         'zona',
+        'sucursal_id',
+        'ejecutivo_id',
         'tipo_reclamo',
         'asunto',
         'descripcion',

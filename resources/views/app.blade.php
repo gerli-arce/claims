@@ -317,6 +317,11 @@
             }
         </style>
 
+        <!-- Pasar datos de sucursales a JavaScript -->
+        <script>
+            window.sucursalesData = @json($sucursales);
+        </script>
+
         @viteReactRefresh
         @vite(['resources/js/app.jsx'])
     </head>

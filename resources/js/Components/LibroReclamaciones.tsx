@@ -19,6 +19,8 @@ interface FormData {
   tipo_reclamo: string
   asunto: string
   descripcion: string
+  sucursal_id: string
+  ejecutivo_id: string
 }
 
 interface Estadisticas {
@@ -44,7 +46,41 @@ interface Reclamacion {
   updated_at: string
 }
 
-const sucursales = ["Puchanaki", "Pangoa", "Satipo", "La Merced", "Santa Ana"]
+interface Sucursal {
+  id: number
+  name: string
+  correlative: string
+  ubigeo: string
+  address: string
+  description: string
+  color: string
+}
+
+interface Ejecutivo {
+  id: number
+  doc_type: string
+  doc_number: string
+  name: string
+  lastname: string
+  relative_id: string
+  email: string
+  phone: string
+  address: string
+  full_name: string
+  image_url: string
+  branch: {
+    id: number
+    name: string
+    correlative: string
+  }
+}
+
+// Obtener sucursales desde window (pasadas desde PHP)
+declare global {
+  interface Window {
+    sucursalesData: Sucursal[]
+  }
+}
 
 export default function LibroReclamaciones() {
   const [formData, setFormData] = useState<FormData>({
@@ -55,9 +91,15 @@ export default function LibroReclamaciones() {
     tipo_reclamo: "",
     asunto: "",
     descripcion: "",
+    sucursal_id: "",
+    ejecutivo_id: "",
   })
 
-  const [selectedSucursal, setSelectedSucursal] = useState<string>("")
+  const [sucursales, setSucursales] = useState<Sucursal[]>([])
+  const [selectedSucursal, setSelectedSucursal] = useState<Sucursal | null>(null)
+  const [ejecutivos, setEjecutivos] = useState<Ejecutivo[]>([])
+  const [selectedEjecutivo, setSelectedEjecutivo] = useState<Ejecutivo | null>(null)
+  const [loadingEjecutivos, setLoadingEjecutivos] = useState(false)
   const [estadisticas, setEstadisticas] = useState<Estadisticas>({
     total: 0,
     resueltos: 0,
@@ -75,9 +117,33 @@ export default function LibroReclamaciones() {
   const [selectedReclamacion, setSelectedReclamacion] = useState<Reclamacion | null>(null)
 
   useEffect(() => {
+    // Cargar sucursales desde window (pasadas desde PHP)
+    if (window.sucursalesData) {
+      setSucursales(window.sucursalesData)
+    }
+
     fetchEstadisticas()
     fetchReclamaciones()
   }, [])
+
+  const fetchEjecutivos = async (sucursalId: number) => {
+    setLoadingEjecutivos(true)
+    try {
+      const response = await fetch(`/api/ejecutivos/${sucursalId}`)
+      const data = await response.json()
+      if (data.status === 200) {
+        setEjecutivos(data.data)
+      } else {
+        console.error("Error fetching ejecutivos:", data.message)
+        setEjecutivos([])
+      }
+    } catch (error) {
+      console.error("Error fetching ejecutivos:", error)
+      setEjecutivos([])
+    } finally {
+      setLoadingEjecutivos(false)
+    }
+  }
 
   const fetchEstadisticas = async () => {
     try {
@@ -116,6 +182,28 @@ export default function LibroReclamaciones() {
     }
   }
 
+  const handleSucursalSelect = (sucursal: Sucursal) => {
+    setSelectedSucursal(sucursal)
+    setSelectedEjecutivo(null) // Reset ejecutivo cuando cambia sucursal
+    setEjecutivos([]) // Limpiar ejecutivos anteriores
+    setFormData((prev) => ({
+      ...prev,
+      sucursal_id: sucursal.id.toString(),
+      ejecutivo_id: "", // Reset ejecutivo_id
+    }))
+
+    // Cargar ejecutivos de la sucursal seleccionada
+    fetchEjecutivos(sucursal.id)
+  }
+
+  const handleEjecutivoSelect = (ejecutivo: Ejecutivo) => {
+    setSelectedEjecutivo(ejecutivo)
+    setFormData((prev) => ({
+      ...prev,
+      ejecutivo_id: ejecutivo.id.toString(),
+    }))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -143,8 +231,12 @@ export default function LibroReclamaciones() {
           tipo_reclamo: "",
           asunto: "",
           descripcion: "",
+          sucursal_id: "",
+          ejecutivo_id: "",
         })
-        setSelectedSucursal("")
+        setSelectedSucursal(null)
+        setSelectedEjecutivo(null)
+        setEjecutivos([])
         fetchEstadisticas()
         fetchReclamaciones()
         setTimeout(() => setSuccess(false), 5000)
@@ -219,7 +311,7 @@ export default function LibroReclamaciones() {
                   <i className="bi bi-tv fs-4"></i>
                 </div>
                 <div className="border-start border-light ps-3">
-                  <h1 className="text-white mb-0 fs-3 fw-bold">TeleConnect</h1>
+                  <h1 className="text-white mb-0 fs-3 fw-bold">FastNet Perú</h1>
                   <p className="text-white-50 mb-0 small">TV • Internet • IPTV</p>
                 </div>
               </div>
@@ -252,21 +344,156 @@ export default function LibroReclamaciones() {
 
         {/* Botones de sucursales */}
         <div className="row justify-content-center mb-5">
-          <div className="col-auto">
+          <div className="col-12">
             <div className="d-flex flex-wrap gap-3 justify-content-center">
               {sucursales.map((sucursal) => (
                 <Button
-                  key={sucursal}
-                  variant={selectedSucursal === sucursal ? "primary" : "outline"}
-                  onClick={() => setSelectedSucursal(sucursal)}
-                  className={selectedSucursal === sucursal ? "shadow" : ""}
+                  key={sucursal.id}
+                  variant={selectedSucursal?.id === sucursal.id ? "primary" : "outline"}
+                  onClick={() => handleSucursalSelect(sucursal)}
+                  className={`position-relative ${selectedSucursal?.id === sucursal.id ? "shadow" : ""}`}
+                  style={{
+                    borderColor: sucursal.color,
+                    color: selectedSucursal?.id === sucursal.id ? "white" : sucursal.color,
+                    backgroundColor: selectedSucursal?.id === sucursal.id ? sucursal.color : "transparent",
+                  }}
                 >
-                  {sucursal}
+                  <span className="position-relative">{sucursal.correlative}</span>
                 </Button>
               ))}
             </div>
           </div>
         </div>
+
+        {/* Información de sucursal seleccionada */}
+        {selectedSucursal && (
+          <div className="row justify-content-center mb-4">
+            <div className="col-lg-8">
+              <Card className="border-0" style={{ borderLeft: `4px solid ${selectedSucursal.color}` }}>
+                <CardContent className="p-3">
+                  <div className="row align-items-center">
+                    <div className="col-md-8">
+                      <h5 className="mb-1 fw-bold" style={{ color: selectedSucursal.color }}>
+                        {selectedSucursal.name}
+                      </h5>
+                      <p className="text-muted mb-0 small">
+                        <i className="bi bi-geo-alt me-1"></i>
+                        {selectedSucursal.address}
+                      </p>
+                    </div>
+                    <div className="col-md-4 text-md-end">
+                      <span className="badge bg-light text-dark border">{selectedSucursal.ubigeo}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+
+        {/* Ejecutivos de la sucursal seleccionada */}
+        {selectedSucursal && (
+          <div className="row justify-content-center mb-5">
+            <div className="col-lg-10">
+              <Card className="fade-in">
+                <CardContent className="p-4">
+                  <div className="d-flex align-items-center mb-4">
+                    <div className="icon-circle icon-circle-primary me-3">
+                      <i className="bi bi-people-fill"></i>
+                    </div>
+                    <div>
+                      <h3 className="h5 mb-1 fw-bold">Ejecutivos de Atención</h3>
+                      <p className="text-muted mb-0">Seleccione el ejecutivo que le atendió</p>
+                    </div>
+                  </div>
+
+                  {loadingEjecutivos ? (
+                    <div className="text-center py-4">
+                      <div className="spinner-border text-primary" role="status">
+                        <span className="visually-hidden">Cargando ejecutivos...</span>
+                      </div>
+                      <p className="text-muted mt-2">Cargando ejecutivos...</p>
+                    </div>
+                  ) : ejecutivos.length === 0 ? (
+                    <div className="text-center py-4">
+                      <i className="bi bi-person-x text-muted" style={{ fontSize: "3rem" }}></i>
+                      <h5 className="text-muted mt-3">No hay ejecutivos disponibles</h5>
+                      <p className="text-muted">En esta sucursal no hay ejecutivos registrados</p>
+                    </div>
+                  ) : (
+                    <div className="row g-3">
+                      {ejecutivos.map((ejecutivo) => (
+                        <div key={ejecutivo.id} className="col-md-6 col-lg-4">
+                          <Card
+                            className={`cursor-pointer h-100 ${
+                              selectedEjecutivo?.id === ejecutivo.id ? "border-primary shadow" : ""
+                            }`}
+                            onClick={() => handleEjecutivoSelect(ejecutivo)}
+                            style={{
+                              borderColor: selectedEjecutivo?.id === ejecutivo.id ? selectedSucursal.color : undefined,
+                              backgroundColor:
+                                selectedEjecutivo?.id === ejecutivo.id ? `${selectedSucursal.color}10` : undefined,
+                            }}
+                          >
+                            <CardContent className="p-3 text-center">
+                              <div className="position-relative mb-3">
+                                <img
+                                  src={ejecutivo.image_url || "/placeholder.svg"}
+                                  alt={ejecutivo.full_name}
+                                  className="rounded-circle border border-3"
+                                  style={{
+                                    width: "80px",
+                                    height: "80px",
+                                    objectFit: "cover",
+                                    borderColor:
+                                      selectedEjecutivo?.id === ejecutivo.id ? selectedSucursal.color : "#e2e8f0",
+                                  }}
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement
+                                    target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(ejecutivo.full_name)}&background=random&color=fff&size=80`
+                                  }}
+                                />
+                                {selectedEjecutivo?.id === ejecutivo.id && (
+                                  <div
+                                    className="position-absolute top-0 end-0 rounded-circle d-flex align-items-center justify-content-center"
+                                    style={{
+                                      width: "24px",
+                                      height: "24px",
+                                      backgroundColor: selectedSucursal.color,
+                                      transform: "translate(25%, -25%)",
+                                    }}
+                                  >
+                                    <i className="bi bi-check text-white" style={{ fontSize: "12px" }}></i>
+                                  </div>
+                                )}
+                              </div>
+                              <h6 className="fw-bold mb-1">{ejecutivo.full_name}</h6>
+                              <p className="text-muted small mb-2">
+                                {ejecutivo.doc_type}: {ejecutivo.doc_number}
+                              </p>
+                              {ejecutivo.phone && (
+                                <p className="text-muted small mb-1">
+                                  <i className="bi bi-telephone me-1"></i>
+                                  {ejecutivo.phone}
+                                </p>
+                              )}
+                              {ejecutivo.email && (
+                                <p className="text-muted small mb-0">
+                                  <i className="bi bi-envelope me-1"></i>
+                                  {ejecutivo.email}
+                                </p>
+                              )}
+                            </CardContent>
+                          </Card>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
 
         <div className="row g-4 mb-5">
           {/* Formulario */}
@@ -395,7 +622,12 @@ export default function LibroReclamaciones() {
                   )}
 
                   <div className="d-grid">
-                    <Button type="submit" disabled={loading} variant="primary" size="lg">
+                    <Button
+                      type="submit"
+                      disabled={loading || !selectedSucursal || !selectedEjecutivo}
+                      variant="primary"
+                      size="lg"
+                    >
                       {loading ? (
                         <>
                           <span className="spinner-custom me-2"></span>
@@ -408,6 +640,11 @@ export default function LibroReclamaciones() {
                         </>
                       )}
                     </Button>
+                    {(!selectedSucursal || !selectedEjecutivo) && (
+                      <small className="text-muted text-center mt-2">
+                        * Seleccione una sucursal y un ejecutivo para continuar
+                      </small>
+                    )}
                   </div>
                 </form>
               </CardContent>
@@ -483,6 +720,41 @@ export default function LibroReclamaciones() {
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Información del ejecutivo seleccionado */}
+              {selectedEjecutivo && (
+                <div className="col-12">
+                  <Card className="fade-in">
+                    <CardContent className="p-4">
+                      <h4 className="h6 fw-bold mb-3 d-flex align-items-center">
+                        <i className="bi bi-person-check me-2 text-success"></i>
+                        Ejecutivo Seleccionado
+                      </h4>
+                      <div className="text-center">
+                        <img
+                          src={selectedEjecutivo.image_url || "/placeholder.svg"}
+                          alt={selectedEjecutivo.full_name}
+                          className="rounded-circle border border-3 mb-2"
+                          style={{
+                            width: "60px",
+                            height: "60px",
+                            objectFit: "cover",
+                            borderColor: selectedSucursal?.color || "#e2e8f0",
+                          }}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement
+                            target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedEjecutivo.full_name)}&background=random&color=fff&size=60`
+                          }}
+                        />
+                        <h6 className="fw-bold mb-1">{selectedEjecutivo.full_name}</h6>
+                        <p className="text-muted small mb-0">
+                          {selectedEjecutivo.doc_type}: {selectedEjecutivo.doc_number}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -517,7 +789,7 @@ export default function LibroReclamaciones() {
                         <SelectValue placeholder="Todos los estados" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Todos los estados</SelectItem>
+                        <SelectItem value="all">Todos los estados</SelectItem>
                         <SelectItem value="pendiente">Pendiente</SelectItem>
                         <SelectItem value="en_proceso">En Proceso</SelectItem>
                         <SelectItem value="resuelto">Resuelto</SelectItem>

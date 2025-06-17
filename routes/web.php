@@ -1,10 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
+use App\Http\Controllers\BasicController;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'message' => 'Hola desde Laravel + Inertia + React!'
-    ]);
-});
+Route::get('/', [BasicController::class, 'index']);
+Route::get('/api/ejecutivos/{sucursalId}', [BasicController::class, 'getEjecutivos']);

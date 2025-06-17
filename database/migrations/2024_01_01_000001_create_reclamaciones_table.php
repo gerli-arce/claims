@@ -18,6 +18,10 @@ return new class extends Migration
             $table->string('telefono');
             $table->string('zona');
 
+            // Referencias a APIs externas
+            $table->unsignedBigInteger('sucursal_id');
+            $table->unsignedBigInteger('ejecutivo_id');
+
             // Datos de la reclamación
             $table->string('tipo_reclamo');
             $table->string('asunto');
