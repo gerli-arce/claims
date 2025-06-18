@@ -10,76 +10,13 @@ import { Textarea } from "./ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { Badge } from "./ui/badge"
 import DetalleReclamacion from "./DetalleReclamacion"
-
-interface FormData {
-  nombre_completo: string
-  correo_electronico: string
-  telefono: string
-  zona: string
-  tipo_reclamo: string
-  asunto: string
-  descripcion: string
-  sucursal_id: string
-  ejecutivo_id: string
-}
-
-interface Estadisticas {
-  total: number
-  resueltos: number
-  pendientes: number
-  en_proceso: number
-  tiempo_promedio: string
-}
-
-interface Reclamacion {
-  id: number
-  numero_reclamacion: string
-  nombre_completo: string
-  correo_electronico: string
-  telefono: string
-  zona: string
-  tipo_reclamo: string
-  asunto: string
-  descripcion: string
-  estado: "pendiente" | "en_proceso" | "resuelto"
-  created_at: string
-  updated_at: string
-}
-
-interface Sucursal {
-  id: number
-  name: string
-  correlative: string
-  ubigeo: string
-  address: string
-  description: string
-  color: string
-}
-
-interface Ejecutivo {
-  id: number
-  doc_type: string
-  doc_number: string
-  name: string
-  lastname: string
-  relative_id: string
-  email: string
-  phone: string
-  address: string
-  full_name: string
-  image_url: string
-  branch: {
-    id: number
-    name: string
-    correlative: string
-  }
-}
+import type { FormData, Estadisticas, Reclamacion, Sucursal,  Ejecutivo, Window} from "../types"
 
 // Obtener sucursales desde window (pasadas desde PHP)
 declare global {
-  interface Window {
-    sucursalesData: Sucursal[]
-  }
+    interface Window {
+        sucursalesData: Sucursal[]
+    }
 }
 
 export default function LibroReclamaciones() {
@@ -468,21 +405,21 @@ export default function LibroReclamaciones() {
                                 )}
                               </div>
                               <h6 className="fw-bold mb-1">{ejecutivo.full_name}</h6>
-                              <p className="text-muted small mb-2">
+                              {/* <p className="text-muted small mb-2">
                                 {ejecutivo.doc_type}: {ejecutivo.doc_number}
-                              </p>
-                              {ejecutivo.phone && (
+                              </p> */}
+                              {/* {ejecutivo.phone && (
                                 <p className="text-muted small mb-1">
                                   <i className="bi bi-telephone me-1"></i>
                                   {ejecutivo.phone}
                                 </p>
-                              )}
-                              {ejecutivo.email && (
+                              )} */}
+                              {/* {ejecutivo.email && (
                                 <p className="text-muted small mb-0">
                                   <i className="bi bi-envelope me-1"></i>
                                   {ejecutivo.email}
                                 </p>
-                              )}
+                              )} */}
                             </CardContent>
                           </Card>
                         </div>

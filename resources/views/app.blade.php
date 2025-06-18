@@ -13,6 +13,11 @@
         <!-- Google Fonts -->
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+        <!-- Pasar datos de sucursales a JavaScript -->
+        <script>
+            window.sucursalesData = @json($sucursales);
+        </script>
+
         <style>
             :root {
                 --primary-color: #2563eb;
@@ -317,13 +322,14 @@
             }
         </style>
 
-        <!-- Pasar datos de sucursales a JavaScript -->
-        <script>
-            window.sucursalesData = @json($sucursales);
-        </script>
+        @php
+            $manifest = json_decode(file_get_contents(public_path('build/manifest.json')), true);
+            $jsFile = $manifest['resources/js/app.jsx']['file'] ?? '';
+        @endphp
 
-        @viteReactRefresh
-        @vite(['resources/js/app.jsx'])
+        @if ($jsFile)
+            <script type="module" src="{{ asset('build/' . $jsFile) }}"></script>
+        @endif
     </head>
     <body>
         <div id="app"></div>
