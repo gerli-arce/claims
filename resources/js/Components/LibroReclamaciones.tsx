@@ -147,14 +147,18 @@ export default function LibroReclamaciones() {
     setErrors({})
 
     console.log("Submitting form data:", formData)
-    
+
+    const token = document.querySelector('meta[name=\"csrf-token\"]')?.getAttribute('content');
+
     try {
       const response = await fetch("/api/reclamaciones", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
+          "X-CSRF-TOKEN": token || "",
         },
+        credentials: 'same-origin',
         body: JSON.stringify(formData),
       })
 
