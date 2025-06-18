@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\gLibraries\gJSON;
+use App\gLibraries\gTrace;
+use App\gLibraries\gValidate;
 use App\Http\Controllers\Controller;
 use App\Models\Reclamacion;
 use Illuminate\Http\Request;
@@ -62,16 +65,23 @@ class ReclamacionController extends Controller
             //     throw new Exception("Error: No deje campos vacíos");
             // }
 
-            $businessJpa = new Business();
-            $businessJpa->name = $request->name;
-            $businessJpa->ruc = $request->ruc;
-            $businessJpa->relative_id = guid::short();
-
-            $businessJpa->status = "1";
-            $businessJpa->save();
+            $reclamacionJpa = new Reclamacion();
+            $reclamacionJpa->nombre_completo = $request->nombre_completo;
+            $reclamacionJpa->correo_electronico = $request->correo_electronico;
+            $reclamacionJpa->telefono = $request->telefono;
+            $reclamacionJpa->zona = $request->zona;
+            $reclamacionJpa->sucursal_id = $request->sucursal_id;
+            $reclamacionJpa->ejecutivo_id = $request->ejecutivo_id;
+            $reclamacionJpa->tipo_reclamo = $request->tipo_reclamo;
+            $reclamacionJpa->asunto = $request->asunto;
+            $reclamacionJpa->descripcion = $request->descripcion;
+            $reclamacionJpa->estado =  "PENDIENTE";
+            $reclamacionJpa->respuesta =  $request->respuesta;
+            $reclamacionJpa->fecha_creacion = gTrace::getDate('mysql');
+            $reclamacionJpa->save();
 
             $response->setStatus(200);
-            $response->setMessage('La empresa se a agregado correctamente');
+            $response->setMessage('La reclamación se ha agregado correctamente');
         } catch (\Throwable$th) {
             $response->setStatus(400);
             $response->setMessage($th->getMessage());

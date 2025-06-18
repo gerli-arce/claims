@@ -146,6 +146,8 @@ export default function LibroReclamaciones() {
     setLoading(true)
     setErrors({})
 
+    console.log("Submitting form data:", formData)
+    
     try {
       const response = await fetch("/api/reclamaciones", {
         method: "POST",

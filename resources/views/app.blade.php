@@ -322,14 +322,17 @@
             }
         </style>
 
-        @php
+        {{-- @php
             $manifest = json_decode(file_get_contents(public_path('build/manifest.json')), true);
             $jsFile = $manifest['resources/js/app.jsx']['file'] ?? '';
         @endphp
 
         @if ($jsFile)
             <script type="module" src="{{ asset('build/' . $jsFile) }}"></script>
-        @endif
+        @endif --}}
+
+        @viteReactRefresh
+        @vite(['resources/js/app.jsx'])
     </head>
     <body>
         <div id="app"></div>
