@@ -8,6 +8,8 @@ import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import { Textarea } from "./ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import Swal from "sweetalert2"
+import "sweetalert2/dist/sweetalert2.min.css"
 import { Badge } from "./ui/badge"
 import DetalleReclamacion from "./DetalleReclamacion"
 import type { FormData, Estadisticas, Reclamacion, Sucursal,  Ejecutivo, Window} from "../types"
@@ -47,7 +49,7 @@ export default function LibroReclamaciones() {
   const [reclamaciones, setReclamaciones] = useState<Reclamacion[]>([])
   const [loading, setLoading] = useState(false)
   const [loadingReclamaciones, setLoadingReclamaciones] = useState(true)
-  const [success, setSuccess] = useState(false)
+//   const [success, setSuccess] = useState(false)
   const [errors, setErrors] = useState<any>({})
   const [searchTerm, setSearchTerm] = useState("")
   const [filtroEstado, setFiltroEstado] = useState("")
@@ -165,7 +167,14 @@ export default function LibroReclamaciones() {
       const data = await response.json()
 
       if (response.ok) {
-        setSuccess(true)
+        // setSuccess(true)
+        Swal.fire({
+          icon: "success",
+          title: "¡Reclamo enviado exitosamente!",
+          text: data.message || "Reclamo enviado correctamente",
+          timer: 5000,
+          timerProgressBar: true,
+        })
         setFormData({
           nombre_completo: "",
           correo_electronico: "",
@@ -182,12 +191,23 @@ export default function LibroReclamaciones() {
         setEjecutivos([])
         fetchEstadisticas()
         fetchReclamaciones()
-        setTimeout(() => setSuccess(false), 5000)
+        // setTimeout(() => setSuccess(false), 5000)
       } else {
+         Swal.fire({
+          icon: "error",
+          title: "Error al enviar reclamo",
+          text: data.message || "No se pudo enviar la reclamación",
+        })
         setErrors(data.errors || {})
       }
     } catch (error) {
+
       console.error("Error:", error)
+       Swal.fire({
+        icon: "error",
+        title: "Error al enviar reclamo",
+        text: "Error al enviar la reclamación",
+      })
       setErrors({ general: "Error al enviar la reclamación" })
     } finally {
       setLoading(false)
@@ -265,7 +285,7 @@ export default function LibroReclamaciones() {
 
       <div className="container-fluid py-4">
         {/* Mensaje de éxito */}
-        {success && (
+        {/* {success && (
           <div className="row justify-content-center mb-4">
             <div className="col-lg-8">
               <div className="alert alert-custom-success fade-in" role="alert">
@@ -277,7 +297,7 @@ export default function LibroReclamaciones() {
               </div>
             </div>
           </div>
-        )}
+        )} */}
 
         {/* Título principal */}
         <div className="text-center mb-5">
