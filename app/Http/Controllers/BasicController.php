@@ -181,4 +181,60 @@ class BasicController extends Controller
         }
     }
 
+     public function paginateClaims()
+    {
+        $reclamaciones = Reclamacion::orderBy('id', 'desc')->paginate(20);
+        return response()->json($reclamaciones);
+    }
+
+      public function estadisticas()
+    {
+        $total = Reclamacion::count();
+        $resueltos = Reclamacion::where('estado', 'resuelto')->count();
+        $pendientes = Reclamacion::where('estado', 'pendiente')->count();
+        $enProceso = Reclamacion::where('estado', 'en_proceso')->count();
+
+        return response()->json([
+            'total' => $total,
+            'resueltos' => $resueltos,
+            'pendientes' => $pendientes,
+            'en_proceso' => $enProceso,
+            'tiempo_promedio' => '24 horas'
+        ]);
+    }
+
+     public function show($id)
+    {
+        $reclamacion = Reclamacion::findOrFail($id);
+        return response()->json($reclamacion);
+    }
+
+     public function update(Request $request, $id)
+    {
+        $reclamacion = Reclamacion::findOrFail($id);
+
+        $validator = Validator::make($request->all(), [
+            'estado' => 'sometimes|in:pendiente,en_proceso,resuelto',
+            'respuesta' => 'nullable|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $reclamacion->update($request->only(['estado', 'respuesta']));
+
+        if ($request->has('estado') && $request->estado === 'resuelto') {
+            $reclamacion->fecha_respuesta = now();
+            $reclamacion->save();
+        }
+
+        return response()->json([
+            'message' => 'Reclamación actualizada exitosamente',
+            'reclamacion' => $reclamacion
+        ]);
+    }
+
 }

@@ -10,7 +10,7 @@ import { ArrowLeft, Save, Mail, Phone, MapPin, Calendar, User, Signal, Wifi, Tv 
 
 interface Reclamacion {
   id: number
-  numero_reclamacion: string
+  numero_reclamacion?: string
   nombre_completo: string
   correo_electronico: string
   telefono: string
@@ -18,11 +18,12 @@ interface Reclamacion {
   tipo_reclamo: string
   asunto: string
   descripcion: string
-  estado: "pendiente" | "en_proceso" | "resuelto"
+  estado: string
   respuesta?: string
   fecha_respuesta?: string
-  created_at: string
-  updated_at: string
+  created_at?: string
+  updated_at?: string
+  fecha_creacion?: string
 }
 
 interface DetalleReclamacionProps {
@@ -32,7 +33,7 @@ interface DetalleReclamacionProps {
 }
 
 export default function DetalleReclamacion({ reclamacion, onVolver, onActualizar }: DetalleReclamacionProps) {
-  const [estado, setEstado] = useState<"pendiente" | "en_proceso" | "resuelto">(reclamacion.estado)
+  const [estado, setEstado] = useState(reclamacion.estado)
   const [respuesta, setRespuesta] = useState(reclamacion.respuesta || "")
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -43,7 +44,7 @@ export default function DetalleReclamacion({ reclamacion, onVolver, onActualizar
       en_proceso: "bg-blue-100 text-blue-800 border-blue-200",
       resuelto: "bg-green-100 text-green-800 border-green-200",
     }
-    return variants[estado as keyof typeof variants] || "bg-gray-100 text-gray-800 border-gray-200"
+    return variants[estado.toLowerCase() as keyof typeof variants] || "bg-gray-100 text-gray-800 border-gray-200"
   }
 
   const getEstadoTexto = (estado: string) => {
@@ -52,7 +53,7 @@ export default function DetalleReclamacion({ reclamacion, onVolver, onActualizar
       en_proceso: "En Proceso",
       resuelto: "Resuelto",
     }
-    return textos[estado as keyof typeof textos] || estado
+     return textos[estado.toLowerCase() as keyof typeof textos] || estado
   }
 
   const handleEstadoChange = (value: string) => {
@@ -124,7 +125,9 @@ export default function DetalleReclamacion({ reclamacion, onVolver, onActualizar
           </Button>
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Detalle de Reclamación</h1>
-            <p className="text-blue-600 font-mono text-lg">{reclamacion.numero_reclamacion}</p>
+            <p className="text-blue-600 font-mono text-lg">
+              {reclamacion.numero_reclamacion || `#${reclamacion.id}`}
+            </p>
           </div>
         </div>
 
@@ -209,7 +212,9 @@ export default function DetalleReclamacion({ reclamacion, onVolver, onActualizar
                   <Calendar className="w-4 h-4" />
                   <span className="font-medium">
                     Creado el{" "}
-                    {new Date(reclamacion.created_at).toLocaleDateString("es-ES", {
+                    {new Date(
+                      reclamacion.created_at || reclamacion.fecha_creacion || ""
+                    ).toLocaleDateString("es-ES", {
                       year: "numeric",
                       month: "long",
                       day: "numeric",
@@ -313,7 +318,9 @@ export default function DetalleReclamacion({ reclamacion, onVolver, onActualizar
                 <div className="p-3 bg-gray-50 rounded-lg">
                   <p className="text-gray-600 font-medium">Última actualización</p>
                   <p className="font-bold text-gray-900">
-                    {new Date(reclamacion.updated_at).toLocaleDateString("es-ES", {
+                     {new Date(
+                      reclamacion.created_at || reclamacion.fecha_creacion || ""
+                    ).toLocaleDateString("es-ES", {
                       year: "numeric",
                       month: "short",
                       day: "numeric",

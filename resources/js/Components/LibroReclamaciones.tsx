@@ -12,6 +12,7 @@ import Swal from "sweetalert2"
 import "sweetalert2/dist/sweetalert2.min.css"
 import { Badge } from "./ui/badge"
 import DetalleReclamacion from "./DetalleReclamacion"
+import ReactPaginate from "react-paginate"
 import type { FormData, Estadisticas, Reclamacion, Sucursal,  Ejecutivo, Window} from "../types"
 
 // Obtener sucursales desde window (pasadas desde PHP)
@@ -53,6 +54,8 @@ export default function LibroReclamaciones() {
   const [errors, setErrors] = useState<any>({})
   const [searchTerm, setSearchTerm] = useState("")
   const [filtroEstado, setFiltroEstado] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
   const [selectedReclamacion, setSelectedReclamacion] = useState<Reclamacion | null>(null)
 
   useEffect(() => {
@@ -62,8 +65,12 @@ export default function LibroReclamaciones() {
     }
 
     fetchEstadisticas()
-    fetchReclamaciones()
   }, [])
+
+  useEffect(() => {
+    fetchReclamaciones()
+  }, [currentPage])
+
 
   const fetchEjecutivos = async (sucursalId: number) => {
     setLoadingEjecutivos(true)
@@ -97,9 +104,10 @@ export default function LibroReclamaciones() {
   const fetchReclamaciones = async () => {
     setLoadingReclamaciones(true)
     try {
-      const response = await fetch("/api/reclamaciones")
+      const response = await fetch(`/api/reclamaciones?page=${currentPage}`)
       const data = await response.json()
       setReclamaciones(data.data || [])
+      setTotalPages(data.last_page || 1)
     } catch (error) {
       console.error("Error fetching reclamaciones:", error)
     } finally {
@@ -215,7 +223,7 @@ export default function LibroReclamaciones() {
   }
 
   const getEstadoBadge = (estado: string) => {
-    switch (estado) {
+     switch (estado.toLowerCase()) {
       case "pendiente":
         return "pending"
       case "en_proceso":
@@ -233,16 +241,18 @@ export default function LibroReclamaciones() {
       en_proceso: "En Proceso",
       resuelto: "Resuelto",
     }
-    return textos[estado as keyof typeof textos] || estado
+    return textos[estado.toLowerCase() as keyof typeof textos] || estado
   }
 
   const filteredReclamaciones = reclamaciones.filter((reclamacion) => {
+    const term = searchTerm.toLowerCase()
     const matchesSearch =
-      reclamacion.numero_reclamacion.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      reclamacion.nombre_completo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      reclamacion.asunto.toLowerCase().includes(searchTerm.toLowerCase())
+    reclamacion.numero_reclamacion?.toLowerCase().includes(term) ||
+    reclamacion.nombre_completo.toLowerCase().includes(term) ||
+    reclamacion.asunto?.toLowerCase().includes(term)
 
-    const matchesEstado = filtroEstado === "" || reclamacion.estado === filtroEstado
+    const matchesEstado =
+      filtroEstado === "" || reclamacion.estado.toLowerCase() === filtroEstado.toLowerCase()
 
     return matchesSearch && matchesEstado
   })
@@ -805,7 +815,7 @@ export default function LibroReclamaciones() {
                           <div className="flex-grow-1">
                             <div className="d-flex align-items-center gap-3 mb-3">
                               <span className="badge bg-primary bg-opacity-10 text-primary border border-primary font-monospace">
-                                {reclamacion.numero_reclamacion}
+                                {reclamacion.numero_reclamacion || `#${reclamacion.id}`}
                               </span>
                               <Badge variant={getEstadoBadge(reclamacion.estado)}>
                                 {getEstadoTexto(reclamacion.estado)}
@@ -820,7 +830,9 @@ export default function LibroReclamaciones() {
                             <p className="text-muted small mb-0">
                               <i className="bi bi-calendar3 me-1"></i>
                               Creado:{" "}
-                              {new Date(reclamacion.created_at).toLocaleDateString("es-ES", {
+                               {new Date(
+                                reclamacion.created_at || reclamacion.fecha_creacion || ""
+                              ).toLocaleDateString("es-ES", {
                                 year: "numeric",
                                 month: "long",
                                 day: "numeric",
@@ -840,6 +852,29 @@ export default function LibroReclamaciones() {
                     </Card>
                   </div>
                 ))}
+              </div>
+            )}
+             {totalPages > 1 && (
+              <div className="d-flex justify-content-center mt-4">
+                <ReactPaginate
+                  previousLabel="Anterior"
+                  nextLabel="Siguiente"
+                  breakLabel="..."
+                  breakClassName="page-item"
+                  breakLinkClassName="page-link"
+                  pageCount={totalPages}
+                  marginPagesDisplayed={2}
+                  pageRangeDisplayed={3}
+                  onPageChange={(e) => setCurrentPage(e.selected + 1)}
+                  containerClassName="pagination"
+                  pageClassName="page-item"
+                  pageLinkClassName="page-link"
+                  previousClassName="page-item"
+                  previousLinkClassName="page-link"
+                  nextClassName="page-item"
+                  nextLinkClassName="page-link"
+                  activeClassName="active"
+                />
               </div>
             )}
           </div>

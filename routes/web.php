@@ -9,8 +9,8 @@ Route::get('/api/ejecutivos/{sucursalId}', [BasicController::class, 'getEjecutiv
 
 Route::post('/api/reclamaciones', [BasicController::class, 'setClaim']);
 
-// Route::post('/api/reclamaciones', [ReclamacionController::class, 'store']);
-// Route::get('/api/reclamaciones', [ReclamacionController::class, 'index']);
+// Route::post('/api/reclamaciones', [BasicController::class, '']);
+Route::get('/api/reclamaciones', [BasicController::class, 'paginateClaims']);
+Route::get('/api/reclamaciones/{id}', [BasicController::class, 'show']);
 // Route::get('/api/reclamaciones/estadisticas', [ReclamacionController::class, 'estadisticas']);
-// Route::get('/api/reclamaciones/{id}', [ReclamacionController::class, 'show']);
 // Route::put('/api/reclamaciones/{id}', [ReclamacionController::class, 'update']);
