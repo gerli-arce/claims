@@ -91,6 +91,17 @@ export interface Reclamacion {
     correo_electronico: string;
     telefono: string;
     zona: string;
+     branch: {
+        id: number;
+        name: string;
+        correlative: string;
+    };
+    ejecutive: {
+        id: number;
+        name: string;
+        lastname: string;
+        relative_id: string;
+    };
     tipo_reclamo: string;
     asunto: string;
     descripcion: string;

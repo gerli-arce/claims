@@ -1,11 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "./ui/card"
+import { Button } from "./ui/button"
+import { Input } from "./ui/input"
+import { Label } from "./ui/label"
+import { Textarea } from "./ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import { Badge } from "./ui/badge"
 import { Search, Eye, Filter } from "lucide-react"
 import DetalleReclamacion from "./DetalleReclamacion"
 
@@ -16,6 +18,17 @@ interface Reclamacion {
   correo_electronico: string
   telefono: string
   zona: string
+    branch: {
+    id: number
+    name: string
+    correlative: string
+  }
+  ejecutive: {
+    id: number
+    name: string
+    lastname: string
+    relative_id: string
+  }
   tipo_reclamo: string
   asunto: string
   descripcion: string
@@ -74,10 +87,13 @@ export default function ListaReclamaciones({ onVolver }: ListaReclamacionesProps
   }
 
   const filteredReclamaciones = reclamaciones.filter((reclamacion) => {
+    const term = searchTerm.toLowerCase()
+    const ejecutivoNombre = `${reclamacion.ejecutive?.name ?? ""} ${reclamacion.ejecutive?.lastname ?? ""}`.toLowerCase()
     const matchesSearch =
-      reclamacion.numero_reclamacion.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      reclamacion.nombre_completo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      reclamacion.asunto.toLowerCase().includes(searchTerm.toLowerCase())
+      reclamacion.numero_reclamacion.toLowerCase().includes(term) ||
+      reclamacion.nombre_completo.toLowerCase().includes(term) ||
+      ejecutivoNombre.includes(term) ||
+      reclamacion.asunto.toLowerCase().includes(term)
 
     const matchesEstado = filtroEstado === "" || reclamacion.estado === filtroEstado
 
@@ -183,8 +199,22 @@ export default function ListaReclamaciones({ onVolver }: ListaReclamacionesProps
                     </div>
                     <h3 className="font-semibold text-lg mb-1">{reclamacion.asunto}</h3>
                     <p className="text-gray-600 mb-2">
-                      <strong>{reclamacion.nombre_completo}</strong> • {reclamacion.zona} • {reclamacion.tipo_reclamo}
+                      <strong>{reclamacion.nombre_completo}</strong> •  {reclamacion.branch?.name} • {reclamacion.tipo_reclamo}
                     </p>
+                     <div className="flex items-center gap-2 mb-2">
+                      <img
+                        src={`http://almacen.fastnetperu.com.pe/api/image_person/${reclamacion.ejecutive?.relative_id}/full`}
+                        alt={reclamacion.ejecutive?.name}
+                        className="w-8 h-8 rounded-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement
+                          target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(reclamacion.ejecutive?.name + ' ' + reclamacion.ejecutive?.lastname)}&background=random&color=fff&size=32`
+                        }}
+                      />
+                      <span className="text-sm text-gray-500">
+                        Atendido por {reclamacion.ejecutive?.name} {reclamacion.ejecutive?.lastname}
+                      </span>
+                    </div>
                     <p className="text-gray-500 text-sm line-clamp-2">{reclamacion.descripcion}</p>
                     <p className="text-xs text-gray-400 mt-2">
                       Creado:{" "}

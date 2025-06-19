@@ -246,9 +246,11 @@ export default function LibroReclamaciones() {
 
   const filteredReclamaciones = reclamaciones.filter((reclamacion) => {
     const term = searchTerm.toLowerCase()
+    const ejecutivoNombre = `${reclamacion.ejecutive?.name ?? ""} ${reclamacion.ejecutive?.lastname ?? ""}`.toLowerCase()
     const matchesSearch =
     reclamacion.numero_reclamacion?.toLowerCase().includes(term) ||
     reclamacion.nombre_completo.toLowerCase().includes(term) ||
+    ejecutivoNombre.includes(term) ||
     reclamacion.asunto?.toLowerCase().includes(term)
 
     const matchesEstado =
@@ -295,20 +297,6 @@ export default function LibroReclamaciones() {
       </header>
 
       <div className="container-fluid py-4">
-        {/* Mensaje de éxito */}
-        {/* {success && (
-          <div className="row justify-content-center mb-4">
-            <div className="col-lg-8">
-              <div className="alert alert-custom-success fade-in" role="alert">
-                <div className="text-center">
-                  <i className="bi bi-check-circle-fill fs-1 text-success mb-2"></i>
-                  <h4 className="alert-heading">¡Reclamo enviado exitosamente!</h4>
-                  <p className="mb-0">Hemos recibido su reclamo y será procesado en breve.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )} */}
 
         {/* Título principal */}
         <div className="text-center mb-5">
@@ -824,9 +812,24 @@ export default function LibroReclamaciones() {
                             </div>
                             <h3 className="h5 fw-bold text-dark mb-2">{reclamacion.asunto}</h3>
                             <p className="text-muted mb-2">
-                              <strong>{reclamacion.nombre_completo}</strong> • {reclamacion.zona} •{" "}
+                              <strong>{reclamacion.nombre_completo}</strong> • {reclamacion.branch?.name} •{" "}
                               <span className="text-capitalize">{reclamacion.tipo_reclamo}</span>
                             </p>
+                            <div className="d-flex align-items-center mb-2">
+                              <img
+                                src={`http://almacen.fastnetperu.com.pe/api/image_person/${reclamacion.ejecutive?.relative_id}/full`}
+                                alt={reclamacion.ejecutive?.name}
+                                className="rounded-circle me-2"
+                                style={{ width: "32px", height: "32px", objectFit: "cover" }}
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement
+                                  target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(reclamacion.ejecutive?.name + ' ' + reclamacion.ejecutive?.lastname)}&background=random&color=fff&size=32`
+                                }}
+                              />
+                              <small className="text-muted">
+                                Atendido por {reclamacion.ejecutive?.name} {reclamacion.ejecutive?.lastname}
+                              </small>
+                            </div>
                             <p className="text-muted small text-truncate-2 mb-3">{reclamacion.descripcion}</p>
                             <p className="text-muted small mb-0">
                               <i className="bi bi-calendar3 me-1"></i>

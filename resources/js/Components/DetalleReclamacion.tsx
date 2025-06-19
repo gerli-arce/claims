@@ -15,6 +15,17 @@ interface Reclamacion {
   correo_electronico: string
   telefono: string
   zona: string
+    branch: {
+    id: number
+    name: string
+    correlative: string
+  }
+  ejecutive: {
+    id: number
+    name: string
+    lastname: string
+    relative_id: string
+  }
   tipo_reclamo: string
   asunto: string
   descripcion: string
@@ -170,7 +181,25 @@ export default function DetalleReclamacion({ reclamacion, onVolver, onActualizar
                     <MapPin className="w-5 h-5 text-blue-600" />
                     <div>
                       <p className="text-sm text-gray-600 font-medium">Zona de servicio</p>
-                      <p className="font-bold text-gray-900">{reclamacion.zona}</p>
+                      <p className="font-bold text-gray-900">{reclamacion.branch?.name}</p>
+                    </div>
+                  </div>
+                <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                    <User className="w-5 h-5 text-blue-600" />
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={`http://almacen.fastnetperu.com.pe/api/image_person/${reclamacion.ejecutive?.relative_id}/full`}
+                        alt={reclamacion.ejecutive?.name}
+                        className="w-8 h-8 rounded-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement
+                          target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(reclamacion.ejecutive?.name + ' ' + reclamacion.ejecutive?.lastname)}&background=random&color=fff&size=32`
+                        }}
+                      />
+                      <div>
+                        <p className="text-sm text-gray-600 font-medium">Ejecutivo</p>
+                        <p className="font-bold text-gray-900">{reclamacion.ejecutive?.name} {reclamacion.ejecutive?.lastname}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
