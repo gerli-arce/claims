@@ -711,9 +711,9 @@ export default function LibroReclamaciones() {
                           }}
                         />
                         <h6 className="fw-bold mb-1">{selectedEjecutivo.full_name}</h6>
-                        <p className="text-muted small mb-0">
+                        {/* <p className="text-muted small mb-0">
                           {selectedEjecutivo.doc_type}: {selectedEjecutivo.doc_number}
-                        </p>
+                        </p> */}
                       </div>
                     </CardContent>
                   </Card>
