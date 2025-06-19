@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\Reclamacion;
+use App\Models\ViewReclamaciones;
 use App\Models\Response;
 
 
@@ -183,8 +184,34 @@ class BasicController extends Controller
 
      public function paginateClaims()
     {
-        $reclamaciones = Reclamacion::orderBy('id', 'desc')->paginate(20);
-        return response()->json($reclamaciones);
+
+        $response = new Response();
+        try {
+
+            $reclamaciones = ViewReclamaciones::orderBy('id', 'desc')->paginate(20);
+            // return response()->json($reclamaciones);
+
+            $reclamos = array();
+            foreach ($reclamaciones as $reclamoJpa) {
+                $parcel = gJSON::restore($reclamoJpa->toArray(), '__');
+                $reclamos[] = $parcel;
+            }
+
+            $response->setStatus(200);
+            $response->setMessage('Operación correcta');
+            // $response->setDraw($request->draw);
+            // $response->setITotalDisplayRecords($iTotalDisplayRecords);
+            // $response->setITotalRecords(ViewParcelsRegisters::where('branch__correlative', $branch)->count());
+            $response->setData($reclamos);
+        } catch (\Throwable $th) {
+            $response->setStatus(400);
+            $response->setMessage($th->getMessage() . $th->getLine());
+        } finally {
+            return response(
+                $response->toArray(),
+                $response->getStatus()
+            );
+        }
     }
 
       public function estadisticas()

@@ -257,6 +257,7 @@ export default function LibroReclamaciones() {
     return matchesSearch && matchesEstado
   })
 
+  console.log("Filtered Reclamaciones:", filteredReclamaciones)
   if (selectedReclamacion) {
     return (
       <DetalleReclamacion
