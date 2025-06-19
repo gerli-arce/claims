@@ -283,11 +283,17 @@ export default function LibroReclamaciones() {
           <div className="row justify-content-center py-4">
             <div className="col-auto">
               <div className="logo-container d-flex align-items-center">
-                <div className="d-flex me-3">
+                {/* <div className="d-flex me-3">
                   <i className="bi bi-broadcast me-2 fs-4"></i>
                   <i className="bi bi-wifi me-2 fs-4"></i>
                   <i className="bi bi-tv fs-4"></i>
-                </div>
+                </div> */}
+                 <img
+                  src="http://almacen.fastnetperu.com.pe/img/logo-light.png"
+                  alt="FastNet Perú"
+                  className="me-3"
+                  style={{ height: "60px" }}
+                />
                 <div className="border-start border-light ps-3">
                   <h1 className="text-white mb-0 fs-3 fw-bold">FastNet Perú</h1>
                   <p className="text-white-50 mb-0 small">TV • Internet • IPTV</p>
