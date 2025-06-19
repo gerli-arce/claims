@@ -11,6 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import Swal from "sweetalert2"
 import "sweetalert2/dist/sweetalert2.min.css"
 import { Badge } from "./ui/badge"
+import DetalleReclamacionModal from "./DetalleReclamacionModal"
+import Modal from "./ui/modal"
 import DetalleReclamacion from "./DetalleReclamacion"
 import ReactPaginate from "react-paginate"
 import type { FormData, Estadisticas, Reclamacion, Sucursal,  Ejecutivo, Window} from "../types"
@@ -260,18 +262,18 @@ export default function LibroReclamaciones() {
   })
 
   console.log("Filtered Reclamaciones:", filteredReclamaciones)
-  if (selectedReclamacion) {
-    return (
-      <DetalleReclamacion
-        reclamacion={selectedReclamacion}
-        onVolver={() => setSelectedReclamacion(null)}
-        onActualizar={() => {
-          fetchReclamaciones()
-          fetchEstadisticas()
-        }}
-      />
-    )
-  }
+//   if (selectedReclamacion) {
+//     return (
+//       <DetalleReclamacion
+//         reclamacion={selectedReclamacion}
+//         onVolver={() => setSelectedReclamacion(null)}
+//         onActualizar={() => {
+//           fetchReclamaciones()
+//           fetchEstadisticas()
+//         }}
+//       />
+//     )
+//   }
 
   return (
     <div className="min-vh-100" style={{ background: "linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)" }}>
@@ -884,6 +886,16 @@ export default function LibroReclamaciones() {
           </div>
         </div>
       </div>
+     {selectedReclamacion && (
+        <Modal
+          show={true}
+          onClose={() => setSelectedReclamacion(null)}
+          title="Detalle de Reclamación"
+          size="lg"
+        >
+          <DetalleReclamacionModal reclamacion={selectedReclamacion} />
+        </Modal>
+      )}
     </div>
   )
 }

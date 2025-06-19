@@ -7,7 +7,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <!-- Bootstrap 5 CSS -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        {{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"> --}}
         <!-- Bootstrap Icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
         <!-- Google Fonts -->
@@ -322,22 +322,22 @@
             }
         </style>
 
-        {{-- @php
+        @php
             $manifest = json_decode(file_get_contents(public_path('build/manifest.json')), true);
             $jsFile = $manifest['resources/js/app.jsx']['file'] ?? '';
         @endphp
 
         @if ($jsFile)
             <script type="module" src="{{ asset('build/' . $jsFile) }}"></script>
-        @endif --}}
+        @endif
 
-        @viteReactRefresh
-        @vite(['resources/js/app.jsx'])
+        {{-- @viteReactRefresh
+        @vite(['resources/js/app.jsx']) --}}
     </head>
     <body>
         <div id="app"></div>
 
         <!-- Bootstrap 5 JS -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script> --}}
     </body>
 </html>
