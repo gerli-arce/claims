@@ -945,6 +945,41 @@ export default function LibroReclamaciones() {
                               })}
                             </p>
                           </div>
+                           {reclamacion.respuesta && (
+                              <div className="d-flex mt-3">
+                                <img
+                                  src={`http://almacen.fastnetperu.com.pe/api/image_person/${reclamacion.ejecutive?.relative_id}/thumb`}
+                                  alt={reclamacion.ejecutive?.name}
+                                  className="rounded-circle me-2"
+                                  style={{ width: "32px", height: "32px", objectFit: "cover" }}
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement
+                                    target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                                      reclamacion.ejecutive?.name + " " + reclamacion.ejecutive?.lastname
+                                    )}&background=random&color=fff&size=32`
+                                  }}
+                                />
+                                <div>
+                                  <div className="bg-light rounded-3 p-2 shadow-sm">
+                                    <p className="fw-bold small mb-1">
+                                      {reclamacion.ejecutive?.name} {reclamacion.ejecutive?.lastname}
+                                    </p>
+                                    <p className="mb-0 small">{reclamacion.respuesta}</p>
+                                  </div>
+                                  {reclamacion.fecha_respuesta && (
+                                    <small className="text-muted">
+                                      {new Date(reclamacion.fecha_respuesta).toLocaleDateString("es-ES", {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      })}
+                                    </small>
+                                  )}
+                                </div>
+                              </div>
+                            )}
                           <div className="ms-3">
                              <Button
                               variant="outline"
