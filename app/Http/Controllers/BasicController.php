@@ -13,6 +13,7 @@ use App\Models\ReclamacionArchivo;
 use Illuminate\Support\Facades\Storage;
 use App\Models\ViewReclamaciones;
 use App\Models\Response;
+use Illuminate\Support\Facades\Validator;
 
 
 class BasicController extends Controller
@@ -302,12 +303,19 @@ class BasicController extends Controller
             ], 422);
         }
 
-        $reclamacion->update($request->only(['estado', 'respuesta']));
+      if ($request->filled('estado')) {
+            $reclamacion->estado = $request->estado;
 
-        if ($request->has('estado') && $request->estado === 'resuelto') {
-            $reclamacion->fecha_respuesta = now();
-            $reclamacion->save();
+       if ($request->estado === 'resuelto') {
+                $reclamacion->fecha_respuesta = now();
+            }
         }
+
+        if ($request->has('respuesta')) {
+            $reclamacion->respuesta = $request->respuesta;
+        }
+
+        $reclamacion->save();
 
         return response()->json([
             'message' => 'Reclamación actualizada exitosamente',

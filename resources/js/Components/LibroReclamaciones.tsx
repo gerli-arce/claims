@@ -12,8 +12,9 @@ import Swal from "sweetalert2"
 import "sweetalert2/dist/sweetalert2.min.css"
 import { Badge } from "./ui/badge"
 import DetalleReclamacionModal from "./DetalleReclamacionModal"
+import GestionReclamacionModal from "./GestionReclamacionModal"
 import Modal from "./ui/modal"
-import DetalleReclamacion from "./DetalleReclamacion"
+// import DetalleReclamacion from "./DetalleReclamacion"
 import ReactPaginate from "react-paginate"
 import type { FormData, Estadisticas, Reclamacion, Sucursal,  Ejecutivo, Window} from "../types"
 
@@ -62,6 +63,7 @@ export default function LibroReclamaciones() {
   const [images, setImages] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [documents, setDocuments] = useState<File[]>([])
+  const [userData, setUserData] = useState<any | null>(null)
 
   useEffect(() => {
     // Cargar sucursales desde window (pasadas desde PHP)
@@ -70,6 +72,18 @@ export default function LibroReclamaciones() {
     }
 
     fetchEstadisticas()
+  }, [])
+
+  // Obtener datos de usuario almacenados en localStorage si existen
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("data")
+      if (stored) {
+        setUserData(JSON.parse(stored))
+      }
+    } catch (err) {
+      console.error("Invalid user data in localStorage", err)
+    }
   }, [])
 
   useEffect(() => {
@@ -299,7 +313,7 @@ export default function LibroReclamaciones() {
   })
 
   console.log("Filtered Reclamaciones:", filteredReclamaciones)
-//   if (selectedReclamacion) {
+//  if (selectedReclamacion && userData) {
 //     return (
 //       <DetalleReclamacion
 //         reclamacion={selectedReclamacion}
@@ -932,9 +946,22 @@ export default function LibroReclamaciones() {
                             </p>
                           </div>
                           <div className="ms-3">
-                            <Button variant="outline" size="sm" onClick={() => setSelectedReclamacion(reclamacion)}>
-                              <i className="bi bi-eye me-1"></i>
-                              Ver detalle
+                             <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setSelectedReclamacion(reclamacion)}
+                            >
+                              {userData ? (
+                                <>
+                                  <i className="bi bi-pencil me-1"></i>
+                                  Gestionar
+                                </>
+                              ) : (
+                                <>
+                                  <i className="bi bi-eye me-1"></i>
+                                  Ver detalle
+                                </>
+                              )}
                             </Button>
                           </div>
                         </div>
@@ -977,7 +1004,18 @@ export default function LibroReclamaciones() {
           title="Detalle de Reclamación"
           size="lg"
         >
-          <DetalleReclamacionModal reclamacion={selectedReclamacion} />
+          {userData ? (
+            <GestionReclamacionModal
+              reclamacion={selectedReclamacion}
+              onActualizar={() => {
+                fetchReclamaciones()
+                fetchEstadisticas()
+                setSelectedReclamacion(null)
+              }}
+            />
+          ) : (
+            <DetalleReclamacionModal reclamacion={selectedReclamacion} />
+          )}
         </Modal>
       )}
     </div>
