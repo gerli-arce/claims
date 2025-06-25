@@ -59,6 +59,9 @@ export default function LibroReclamaciones() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [selectedReclamacion, setSelectedReclamacion] = useState<Reclamacion | null>(null)
+  const [images, setImages] = useState<File[]>([])
+  const [imagePreviews, setImagePreviews] = useState<string[]>([])
+  const [documents, setDocuments] = useState<File[]>([])
 
   useEffect(() => {
     // Cargar sucursales desde window (pasadas desde PHP)
@@ -153,29 +156,60 @@ export default function LibroReclamaciones() {
     }))
   }
 
+ const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
+    setImages((prev) => [...prev, ...files])
+    setImagePreviews((prev) => [
+      ...prev,
+      ...files.map((f) => URL.createObjectURL(f)),
+    ])
+    e.target.value = ""
+  }
+
+  const removeImage = (idx: number) => {
+    setImages((prev) => prev.filter((_, i) => i !== idx))
+    setImagePreviews((prev) => {
+      const url = prev[idx]
+      if (url) URL.revokeObjectURL(url)
+      return prev.filter((_, i) => i !== idx)
+    })
+  }
+
+  const handleDocumentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
+    setDocuments((prev) => [...prev, ...files])
+    e.target.value = ""
+  }
+
+  const removeDocument = (idx: number) => {
+    setDocuments((prev) => prev.filter((_, i) => i !== idx))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setErrors({})
 
-    console.log("Submitting form data:", formData)
+      const token = document.querySelector("meta[name=\"csrf-token\"]")?.getAttribute("content");
 
-    const token = document.querySelector('meta[name=\"csrf-token\"]')?.getAttribute('content');
+      const payload = new FormData();
+    Object.entries(formData).forEach(([key, value]) => payload.append(key, value));
+    images.forEach((f) => payload.append("images[]", f));
+    documents.forEach((f) => payload.append("documents[]", f));
 
     try {
       const response = await fetch("/api/reclamaciones", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
           "X-CSRF-TOKEN": token || "",
         },
-        credentials: 'same-origin',
-        body: JSON.stringify(formData),
+         credentials: "same-origin",
+        body: payload,
       })
 
       const data = await response.json()
-
       if (response.ok) {
         // setSuccess(true)
         Swal.fire({
@@ -199,6 +233,9 @@ export default function LibroReclamaciones() {
         setSelectedSucursal(null)
         setSelectedEjecutivo(null)
         setEjecutivos([])
+        setImages([])
+        setImagePreviews([])
+        setDocuments([])
         fetchEstadisticas()
         fetchReclamaciones()
         // setTimeout(() => setSuccess(false), 5000)
@@ -584,6 +621,47 @@ export default function LibroReclamaciones() {
                     />
                     {errors.descripcion && <div className="invalid-feedback">{errors.descripcion[0]}</div>}
                   </div>
+
+                 <div className="mb-4">
+                    <Label>Evidencia Fotográfica</Label>
+                    <Input type="file" multiple accept="image/*" onChange={handleImageChange} />
+                    <div className="mt-3 d-flex flex-wrap gap-2">
+                      {imagePreviews.map((src, idx) => (
+                        <div key={idx} className="position-relative">
+                          <img
+                            src={src}
+                            alt={`img-${idx}`}
+                            style={{ width: "80px", height: "80px", objectFit: "cover" }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImage(idx)}
+                            className="btn-close position-absolute top-0 end-0 bg-white rounded-circle"
+                            style={{ transform: "translate(50%,-50%)" }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="mb-4">
+                    <Label>Documentos Adicionales</Label>
+                    <Input type="file" multiple onChange={handleDocumentChange} />
+                    <ul className="mt-2 list-unstyled">
+                      {documents.map((doc, idx) => (
+                        <li key={idx} className="d-flex align-items-center mb-1">
+                          <span className="me-2">{doc.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => removeDocument(idx)}
+                            className="btn-close"
+                            aria-label="Eliminar"
+                          ></button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
 
                   {errors.general && (
                     <div className="alert alert-custom-danger mb-4" role="alert">

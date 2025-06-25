@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\Reclamacion;
+use App\Models\ReclamacionArchivo;
 use App\Models\ViewReclamaciones;
 use App\Models\Response;
 
@@ -168,6 +169,33 @@ class BasicController extends Controller
             $reclamacionJpa->respuesta =  $request->respuesta;
             $reclamacionJpa->fecha_creacion = gTrace::getDate('mysql');
             $reclamacionJpa->save();
+
+           // Guardar archivos adjuntos si existen
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $file) {
+                    $path = $file->store('reclamaciones', 'public');
+                    ReclamacionArchivo::create([
+                        'reclamacion_id' => $reclamacionJpa->id,
+                        'nombre_original' => $file->getClientOriginalName(),
+                        'ruta' => $path,
+                        'tipo' => 'imagen',
+                        'fecha_creacion' => gTrace::getDate('mysql'),
+                    ]);
+                }
+            }
+
+            if ($request->hasFile('documents')) {
+                foreach ($request->file('documents') as $file) {
+                    $path = $file->store('reclamaciones', 'public');
+                    ReclamacionArchivo::create([
+                        'reclamacion_id' => $reclamacionJpa->id,
+                        'nombre_original' => $file->getClientOriginalName(),
+                        'ruta' => $path,
+                        'tipo' => 'documento',
+                        'fecha_creacion' => gTrace::getDate('mysql'),
+                    ]);
+                }
+            }
 
             $response->setStatus(200);
             $response->setMessage('La reclamación se ha agregado correctamente');
