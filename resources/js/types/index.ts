@@ -111,6 +111,15 @@ export interface Reclamacion {
     created_at?: string;
     updated_at?: string;
     fecha_creacion?: string;
+    archivos?: Archivo[];
+}
+
+export interface Archivo {
+    id: number;
+    nombre_original: string;
+    ruta: string;
+    tipo: 'imagen' | 'documento';
+    fecha_creacion: string;
 }
 
 export interface Sucursal {

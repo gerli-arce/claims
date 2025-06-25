@@ -84,6 +84,40 @@ export default function DetalleReclamacionModal({ reclamacion }: DetalleReclamac
             <th>Descripción</th>
             <td>{reclamacion.descripcion}</td>
           </tr>
+          {reclamacion.archivos && (
+            <tr>
+              <th>Archivos</th>
+              <td>
+                <div className="d-flex flex-wrap gap-2">
+                  {reclamacion.archivos.map((archivo) => (
+                    archivo.tipo === 'imagen' ? (
+                    <a
+                        key={archivo.id}
+                        href={`/api/archivos/${archivo.id}?download=1`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <img
+                          src={`/api/archivos/${archivo.id}`}
+                          alt={archivo.nombre_original}
+                          style={{ width: '60px', height: '60px', objectFit: 'cover' }}
+                          className="border rounded"
+                        />
+                      </a>
+                    ) : (
+                      <a
+                        key={archivo.id}
+                        href={`/api/archivos/${archivo.id}?download=1`}
+                        className="text-primary text-decoration-underline"
+                      >
+                        {archivo.nombre_original}
+                      </a>
+                    )
+                  ))}
+                </div>
+              </td>
+            </tr>
+          )}
           <tr>
             <th>Creado</th>
             <td>

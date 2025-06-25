@@ -35,6 +35,13 @@ interface Reclamacion {
   estado: "pendiente" | "en_proceso" | "resuelto"
   created_at: string
   updated_at: string
+   archivos?: {
+    id: number
+    nombre_original: string
+    ruta: string
+    tipo: 'imagen' | 'documento'
+    fecha_creacion: string
+  }[]
 }
 
 interface ListaReclamacionesProps {
@@ -216,6 +223,34 @@ export default function ListaReclamaciones({ onVolver }: ListaReclamacionesProps
                       </span>
                     </div>
                     <p className="text-gray-500 text-sm line-clamp-2">{reclamacion.descripcion}</p>
+                 {reclamacion.archivos && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {reclamacion.archivos.map((archivo) => (
+                          archivo.tipo === 'imagen' ? (
+                          <a
+                              key={archivo.id}
+                              href={`/api/archivos/${archivo.id}?download=1`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <img
+                                src={`/api/archivos/${archivo.id}`}
+                                alt={archivo.nombre_original}
+                                className="w-16 h-16 object-cover rounded border"
+                              />
+                            </a>
+                          ) : (
+                          <a
+                              key={archivo.id}
+                              href={`/api/archivos/${archivo.id}?download=1`}
+                              className="text-blue-600 underline text-sm"
+                            >
+                              {archivo.nombre_original}
+                            </a>
+                          )
+                        ))}
+                      </div>
+                    )}
                     <p className="text-xs text-gray-400 mt-2">
                       Creado:{" "}
                       {new Date(reclamacion.created_at).toLocaleDateString("es-ES", {

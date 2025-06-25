@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\Reclamacion;
 use App\Models\ReclamacionArchivo;
+use Illuminate\Support\Facades\Storage;
 use App\Models\ViewReclamaciones;
 use App\Models\Response;
 
@@ -222,6 +223,8 @@ class BasicController extends Controller
             $reclamos = array();
             foreach ($reclamaciones as $reclamoJpa) {
                 $parcel = gJSON::restore($reclamoJpa->toArray(), '__');
+               $parcel['archivos'] = ReclamacionArchivo::where('reclamacion_id', $reclamoJpa->id)
+                    ->get([ 'id', 'nombre_original', 'ruta', 'tipo', 'fecha_creacion' ]);
                 $reclamos[] = $parcel;
             }
 
@@ -260,9 +263,27 @@ class BasicController extends Controller
 
      public function show($id)
     {
-        $reclamacion = Reclamacion::findOrFail($id);
+          $reclamacion = Reclamacion::with('archivos')->findOrFail($id);
         return response()->json($reclamacion);
     }
+
+     public function archivo($id)
+    {
+        $archivo = ReclamacionArchivo::findOrFail($id);
+
+        $path = \Illuminate\Support\Facades\Storage::disk('public')->path($archivo->ruta);
+
+        if (!\Illuminate\Support\Facades\Storage::disk('public')->exists($archivo->ruta)) {
+            abort(404);
+        }
+
+        if (request()->query('download')) {
+            return response()->download($path, $archivo->nombre_original);
+        }
+
+        return response()->file($path);
+    }
+
 
      public function update(Request $request, $id)
     {

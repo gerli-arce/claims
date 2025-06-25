@@ -35,6 +35,13 @@ interface Reclamacion {
   created_at?: string
   updated_at?: string
   fecha_creacion?: string
+    archivos?: {
+    id: number
+    nombre_original: string
+    ruta: string
+    tipo: 'imagen' | 'documento'
+    fecha_creacion: string
+  }[]
 }
 
 interface DetalleReclamacionProps {
@@ -237,6 +244,37 @@ export default function DetalleReclamacion({ reclamacion, onVolver, onActualizar
                   <p className="text-sm text-gray-600 font-medium mb-2">Descripción</p>
                   <p className="text-gray-800 leading-relaxed">{reclamacion.descripcion}</p>
                 </div>
+                 {reclamacion.archivos && (
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <p className="text-sm text-gray-600 font-medium mb-2">Archivos Adjuntos</p>
+                    <div className="flex flex-wrap gap-2">
+                      {reclamacion.archivos.map((archivo) => (
+                        archivo.tipo === 'imagen' ? (
+                          <a
+                            key={archivo.id}
+                            href={`/api/archivos/${archivo.id}?download=1`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <img
+                              src={`/api/archivos/${archivo.id}`}
+                              alt={archivo.nombre_original}
+                              className="w-20 h-20 object-cover rounded border"
+                            />
+                          </a>
+                        ) : (
+                          <a
+                            key={archivo.id}
+                            href={`/api/archivos/${archivo.id}?download=1`}
+                            className="text-blue-600 underline text-sm"
+                          >
+                            {archivo.nombre_original}
+                          </a>
+                        )
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div className="flex items-center gap-3 text-sm text-gray-500 p-4 bg-blue-50 rounded-lg">
                   <Calendar className="w-4 h-4" />
                   <span className="font-medium">

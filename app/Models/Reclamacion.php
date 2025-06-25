@@ -13,6 +13,11 @@ class Reclamacion extends Model
     public $timestamps = false;
     protected $table = 'reclamaciones';
 
+        public function archivos()
+    {
+        return $this->hasMany(ReclamacionArchivo::class, 'reclamacion_id');
+    }
+
     // protected $fillable = [
     //     'numero_reclamacion',
     //     'nombre_completo',
