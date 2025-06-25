@@ -98,7 +98,7 @@ export default function LibroReclamaciones() {
 
   const fetchEstadisticas = async () => {
     try {
-      const response = await fetch("/api/reclamaciones/estadisticas")
+      const response = await fetch("/api/reclamos/estadisticas")
       const data = await response.json()
       setEstadisticas(data)
     } catch (error) {

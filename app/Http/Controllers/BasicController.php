@@ -166,7 +166,7 @@ class BasicController extends Controller
             $reclamacionJpa->tipo_reclamo = $request->tipo_reclamo;
             $reclamacionJpa->asunto = $request->asunto;
             $reclamacionJpa->descripcion = $request->descripcion;
-            $reclamacionJpa->estado =  "PENDIENTE";
+            $reclamacionJpa->estado =  "pendiente";
             $reclamacionJpa->respuesta =  $request->respuesta;
             $reclamacionJpa->fecha_creacion = gTrace::getDate('mysql');
             $reclamacionJpa->save();
@@ -248,9 +248,11 @@ class BasicController extends Controller
       public function estadisticas()
     {
         $total = Reclamacion::count();
-        $resueltos = Reclamacion::where('estado', 'resuelto')->count();
-        $pendientes = Reclamacion::where('estado', 'pendiente')->count();
-        $enProceso = Reclamacion::where('estado', 'en_proceso')->count();
+
+        // Contamos ignorando mayúsculas/minúsculas para evitar inconsistencias
+        $resueltos = Reclamacion::whereRaw('LOWER(estado) = ?', ['resuelto'])->count();
+        $pendientes = Reclamacion::whereRaw('LOWER(estado) = ?', ['pendiente'])->count();
+        $enProceso = Reclamacion::whereRaw('LOWER(estado) = ?', ['en_proceso'])->count();
 
         return response()->json([
             'total' => $total,

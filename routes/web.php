@@ -15,3 +15,4 @@ Route::get('/api/reclamaciones/{id}', [BasicController::class, 'show']);
 Route::get('/api/archivos/{id}', [BasicController::class, 'archivo']);
 // Route::get('/api/reclamaciones/estadisticas', [ReclamacionController::class, 'estadisticas']);
 // Route::put('/api/reclamaciones/{id}', [ReclamacionController::class, 'update']);
+Route::get('/api/reclamos/estadisticas', [BasicController::class, 'estadisticas']);
