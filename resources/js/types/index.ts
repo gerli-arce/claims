@@ -114,6 +114,7 @@ export interface Reclamacion {
     archivos?: Archivo[];
 }
 
+
 export interface Archivo {
     id: number;
     nombre_original: string;
