@@ -65,6 +65,8 @@ export default function LibroReclamaciones() {
   const [documents, setDocuments] = useState<File[]>([])
   const [userData, setUserData] = useState<any | null>(null)
 
+   const [darkMode, setDarkMode] = useState(false)
+
   useEffect(() => {
     // Cargar sucursales desde window (pasadas desde PHP)
     if (window.sucursalesData) {
@@ -82,9 +84,27 @@ export default function LibroReclamaciones() {
         setUserData(JSON.parse(stored))
       }
     } catch (err) {
-      console.error("Invalid user data in localStorage", err)
+     console.error("Invalid user data in localStorage", err)
+  }
+}, [])
+
+  useEffect(() => {
+    const stored = localStorage.getItem("bsTheme")
+    if (stored === null) {
+      setDarkMode(window.matchMedia("(prefers-color-scheme: dark)").matches)
+    } else {
+      setDarkMode(stored === "dark")
     }
   }, [])
+
+   useEffect(() => {
+    if (darkMode) {
+      document.documentElement.setAttribute("data-bs-theme", "dark")
+    } else {
+      document.documentElement.setAttribute("data-bs-theme", "light")
+    }
+    localStorage.setItem("bsTheme", darkMode ? "dark" : "light")
+  }, [darkMode])
 
   useEffect(() => {
     fetchReclamaciones()
@@ -327,11 +347,10 @@ export default function LibroReclamaciones() {
 //   }
 
   return (
-    <div className="min-vh-100" style={{ background: "linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)" }}>
-      {/* Header Profesional */}
-      <header className="custom-header">
-        <div className="container-fluid">
-          <div className="row justify-content-center py-4">
+<div className="min-vh-100 bg-body">      {/* Header Profesional */}
+        <header className="bg-primary text-white">
+        <div className="container position-relative text-center py-4">
+          <div className="d-inline-flex align-items-center">
             <div className="col-auto">
               <div className="logo-container d-flex align-items-center">
                 {/* <div className="d-flex me-3">
@@ -345,21 +364,28 @@ export default function LibroReclamaciones() {
                   className="me-3"
                   style={{ height: "60px" }}
                 />
-                <div className="border-start border-light ps-3">
-                  <h1 className="text-white mb-0 fs-3 fw-bold">FastNet Perú</h1>
-                  <p className="text-white-50 mb-0 small">TV • Internet • IPTV</p>
+                <div className="border-start border-light ps-3 text-start">
+                    <h1 className="text-white mb-0 fs-3 fw-bold">FastNet Perú</h1>
+                    <p className="text-white-50 mb-0 small">TV • Internet • IPTV</p>
                 </div>
               </div>
+              <button
+                    className="btn mt-4 btn-sm btn-outline-light position-absolute top-0 end-0"
+                    onClick={() => setDarkMode(!darkMode)}
+                    type="button"
+                >
+                    {darkMode ? <i className="bi bi-sun-fill" /> : <i className="bi bi-moon-fill" />}
+                </button>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="container-fluid py-4">
+      <div className="container py-4">
 
         {/* Título principal */}
         <div className="text-center mb-5">
-          <h1 className="display-4 fw-bold text-dark mb-3">Libro de Reclamaciones</h1>
+          <h1 className="display-4 fw-bold text-body mb-3">Libro de Reclamaciones</h1>
           <p className="lead text-muted">Registra tu reclamo sobre nuestros servicios de TV, Internet e IPTV</p>
         </div>
 
@@ -403,8 +429,7 @@ export default function LibroReclamaciones() {
                       </p>
                     </div>
                     <div className="col-md-4 text-md-end">
-                      <span className="badge bg-light text-dark border">{selectedSucursal.ubigeo}</span>
-                    </div>
+                        <span className="badge bg-body-secondary text-body border">{selectedSucursal.ubigeo}</span>                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -678,7 +703,7 @@ export default function LibroReclamaciones() {
 
 
                   {errors.general && (
-                    <div className="alert alert-custom-danger mb-4" role="alert">
+                   <div className="alert alert-danger mb-4" role="alert">
                       {errors.general}
                     </div>
                   )}
@@ -692,7 +717,7 @@ export default function LibroReclamaciones() {
                     >
                       {loading ? (
                         <>
-                          <span className="spinner-custom me-2"></span>
+                          <span className="spinner-border spinner-border-sm me-2" role="status"></span>
                           Enviando...
                         </>
                       ) : (
@@ -766,9 +791,9 @@ export default function LibroReclamaciones() {
                       <i className="bi bi-tv me-2 text-primary"></i>
                       Tiempo de Respuesta
                     </h4>
-                    <div className="progress progress-custom mb-3">
+                    <div className="progress mb-3">
                       <div
-                        className="progress-bar progress-bar-custom"
+                        className="progress-bar"
                         role="progressbar"
                         style={{ width: "75%" }}
                         aria-valuenow={75}
@@ -825,7 +850,7 @@ export default function LibroReclamaciones() {
         <div className="row">
           <div className="col-12">
             <div className="mb-4">
-              <h2 className="h3 fw-bold text-dark mb-2">Reclamaciones Registradas</h2>
+              <h2 className="h3 fw-bold text-body mb-2">Reclamaciones Registradas</h2>
               <p className="text-muted">Historial de reclamos y su estado actual</p>
             </div>
 
@@ -871,12 +896,11 @@ export default function LibroReclamaciones() {
                       <CardContent className="p-4">
                         <div className="d-flex justify-content-between align-items-start">
                           <div className="flex-grow-1">
-                            <div className="bg-light rounded mb-2" style={{ height: "20px", width: "25%" }}></div>
-                            <div className="bg-light rounded mb-2" style={{ height: "24px", width: "50%" }}></div>
-                            <div className="bg-light rounded" style={{ height: "16px", width: "75%" }}></div>
+                            <div className="bg-body-secondary rounded mb-2" style={{ height: "20px", width: "25%" }}></div>
+                            <div className="bg-body-secondary rounded mb-2" style={{ height: "24px", width: "50%" }}></div>
+                            <div className="bg-body-secondary rounded" style={{ height: "16px", width: "75%" }}></div>
                           </div>
-                          <div className="bg-light rounded" style={{ height: "32px", width: "80px" }}></div>
-                        </div>
+                        <div className="bg-body-secondary rounded" style={{ height: "32px", width: "80px" }}></div>                        </div>
                       </CardContent>
                     </Card>
                   </div>
@@ -886,8 +910,7 @@ export default function LibroReclamaciones() {
               <Card>
                 <CardContent className="p-5 text-center">
                   <i className="bi bi-tv text-muted" style={{ fontSize: "4rem" }}></i>
-                  <h3 className="h5 fw-bold text-dark mt-3 mb-2">No se encontraron reclamaciones</h3>
-                  <p className="text-muted">
+                    <h3 className="h5 fw-bold text-body mt-3 mb-2">No se encontraron reclamaciones</h3>                  <p className="text-muted">
                     {searchTerm || filtroEstado
                       ? "Intenta ajustar los filtros de búsqueda"
                       : "Aún no hay reclamaciones registradas"}
@@ -910,8 +933,7 @@ export default function LibroReclamaciones() {
                                 {getEstadoTexto(reclamacion.estado)}
                               </Badge>
                             </div>
-                            <h3 className="h5 fw-bold text-dark mb-2">{reclamacion.asunto}</h3>
-                            <p className="text-muted mb-2">
+                            <h3 className="h5 fw-bold text-body mb-2">{reclamacion.asunto}</h3>                            <p className="text-muted mb-2">
                               <strong>{reclamacion.nombre_completo}</strong> • {reclamacion.branch?.name} •{" "}
                               <span className="text-capitalize">{reclamacion.tipo_reclamo}</span>
                             </p>
@@ -960,7 +982,7 @@ export default function LibroReclamaciones() {
                                   }}
                                 />
                                 <div>
-                                  <div className="bg-light rounded-3 p-2 shadow-sm">
+                                    <div className="bg-body-secondary text-body rounded-3 p-2 shadow-sm">
                                     <p className="fw-bold small mb-1">
                                       {reclamacion.ejecutive?.name} {reclamacion.ejecutive?.lastname}
                                     </p>

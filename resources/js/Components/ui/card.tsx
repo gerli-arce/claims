@@ -22,7 +22,7 @@ interface CardTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
 
 export function Card({ children, className = "", ...props }: CardProps) {
   return (
-    <div className={`card custom-card ${className}`} {...props}>
+      <div className={`card bg-body text-body ${className}`} {...props}>
       {children}
     </div>
   )
@@ -30,7 +30,7 @@ export function Card({ children, className = "", ...props }: CardProps) {
 
 export function CardContent({ children, className = "", ...props }: CardContentProps) {
   return (
-    <div className={`card-body ${className}`} {...props}>
+    <div className={`card-body ${className} text-body`} {...props}>
       {children}
     </div>
   )
@@ -38,7 +38,7 @@ export function CardContent({ children, className = "", ...props }: CardContentP
 
 export function CardHeader({ children, className = "", ...props }: CardHeaderProps) {
   return (
-    <div className={`card-header custom-card-header ${className}`} {...props}>
+    <div className={`card-header bg-transparent ${className}`} {...props}>
       {children}
     </div>
   )

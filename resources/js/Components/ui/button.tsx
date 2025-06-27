@@ -10,17 +10,17 @@ export function Button({ variant = "primary", size = "md", className = "", child
   const getVariantClass = () => {
     switch (variant) {
       case "primary":
-        return "btn-custom-primary text-white"
+        return "btn-primary"
       case "outline":
-        return "btn-outline-custom"
+        return "btn-outline-primary"
       case "secondary":
-        return "btn btn-secondary"
+       return "btn-secondary"
       case "success":
-        return "btn btn-success"
+         return "btn-success"
       case "danger":
-        return "btn btn-danger"
+        return "btn-danger"
       default:
-        return "btn-custom-primary text-white"
+        return "btn-primary"
     }
   }
 

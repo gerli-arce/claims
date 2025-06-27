@@ -16,7 +16,7 @@ export default function AppLayout({ title, children }: AppLayoutProps) {
           href="http://almacen.fastnetperu.com.pe/img/icon.png"
         />
       </Head>
-      
+
       {/* Navbar */}
       <nav className="navbar navbar-expand-lg navbar-light sticky-top">
         <div className="container">
