@@ -754,29 +754,29 @@ export default function LibroReclamaciones() {
                       </div>
                     </div>
 
-                    <div className="row g-3">
+                    <div className="row row-cols-2 g-3 text-center justify-content-center">
                       <div className="col-6">
-                        <div className="stats-card bg-danger bg-opacity-10 border-danger">
-                          <div className="stats-number text-danger">{estadisticas.total}</div>
-                          <div className="stats-label text-danger">Total</div>
+                         <div className="border border-danger-subtle rounded bg-danger-subtle p-3">
+                          <div className="fs-4 fw-bold text-danger-emphasis">{estadisticas.total}</div>
+                          <div className="text-danger-emphasis">Total</div>
                         </div>
                       </div>
                       <div className="col-6">
-                        <div className="stats-card bg-success bg-opacity-10 border-success">
-                          <div className="stats-number text-success">{estadisticas.resueltos}</div>
-                          <div className="stats-label text-success">Resueltos</div>
+                       <div className="border border-success-subtle rounded bg-success-subtle p-3">
+                          <div className="fs-4 fw-bold text-success-emphasis">{estadisticas.resueltos}</div>
+                          <div className="text-success-emphasis">Resueltos</div>
                         </div>
                       </div>
                       <div className="col-6">
-                        <div className="stats-card bg-warning bg-opacity-10 border-warning">
-                          <div className="stats-number text-warning">{estadisticas.pendientes}</div>
-                          <div className="stats-label text-warning">Pendientes</div>
+                       <div className="border border-warning-subtle rounded bg-warning-subtle p-3">
+                          <div className="fs-4 fw-bold text-warning-emphasis">{estadisticas.pendientes}</div>
+                          <div className="text-warning-emphasis">Pendientes</div>
                         </div>
                       </div>
                       <div className="col-6">
-                        <div className="stats-card bg-primary bg-opacity-10 border-primary">
-                          <div className="stats-number text-primary">{estadisticas.en_proceso}</div>
-                          <div className="stats-label text-primary">En Proceso</div>
+                         <div className="border border-primary-subtle rounded bg-primary-subtle p-3">
+                          <div className="fs-4 fw-bold text-primary-emphasis">{estadisticas.en_proceso}</div>
+                          <div className="text-primary-emphasis">En Proceso</div>
                         </div>
                       </div>
                     </div>

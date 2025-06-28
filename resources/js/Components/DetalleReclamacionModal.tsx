@@ -10,13 +10,13 @@ export default function DetalleReclamacionModal({ reclamacion }: DetalleReclamac
   const estadoClass = (estado: string) => {
     switch (estado.toLowerCase()) {
       case "pendiente":
-        return "bg-warning text-dark"
+        return "bg-warning-subtle border border-warning-subtle text-warning-emphasis"
       case "en_proceso":
-        return "bg-info text-dark"
+        return "bg-info-subtle border border-info-subtle text-info-emphasis"
       case "resuelto":
-        return "bg-success"
+        return "bg-success-subtle border border-success-subtle text-success-emphasis"
       default:
-        return "bg-secondary"
+        return "bg-secondary-subtle border border-secondary-subtle text-secondary-emphasis"
     }
   }
 

@@ -58,12 +58,17 @@ export default function DetalleReclamacion({ reclamacion, onVolver, onActualizar
 
   const getEstadoBadge = (estado: string) => {
     const variants = {
-      pendiente: "bg-yellow-100 text-yellow-800 border-yellow-200",
-      en_proceso: "bg-blue-100 text-blue-800 border-blue-200",
-      resuelto: "bg-green-100 text-green-800 border-green-200",
+       pendiente:
+        "bg-warning-subtle border border-warning-subtle text-warning-emphasis",
+      en_proceso:
+        "bg-info-subtle border border-info-subtle text-info-emphasis",
+      resuelto:
+        "bg-success-subtle border border-success-subtle text-success-emphasis",
     }
-    return variants[estado.toLowerCase() as keyof typeof variants] || "bg-gray-100 text-gray-800 border-gray-200"
-  }
+ return (
+      variants[estado.toLowerCase() as keyof typeof variants] ||
+      "bg-secondary-subtle border border-secondary-subtle text-secondary-emphasis"
+    )  }
 
   const getEstadoTexto = (estado: string) => {
     const textos = {

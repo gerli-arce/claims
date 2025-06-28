@@ -246,6 +246,36 @@ class BasicController extends Controller
         }
     }
 
+
+     public function lastClaims()
+    {
+        $response = new Response();
+        try {
+            $reclamaciones = ViewReclamaciones::orderBy('id', 'desc')->limit(10)->get();
+
+            $reclamos = array();
+            foreach ($reclamaciones as $reclamoJpa) {
+                $parcel = gJSON::restore($reclamoJpa->toArray(), '__');
+                $parcel['archivos'] = ReclamacionArchivo::where('reclamacion_id', $reclamoJpa->id)
+                    ->get(['id', 'nombre_original', 'ruta', 'tipo', 'fecha_creacion']);
+                $reclamos[] = $parcel;
+            }
+
+            $response->setStatus(200);
+            $response->setMessage('Operación correcta');
+            $response->setData($reclamos);
+        } catch (\Throwable $th) {
+            $response->setStatus(400);
+            $response->setMessage($th->getMessage());
+        } finally {
+            return response(
+                $response->toArray(),
+                $response->getStatus()
+            );
+        }
+    }
+
+
       public function estadisticas()
     {
         $total = Reclamacion::count();

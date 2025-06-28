@@ -77,12 +77,17 @@ export default function ListaReclamaciones({ onVolver }: ListaReclamacionesProps
 
   const getEstadoBadge = (estado: string) => {
     const variants = {
-      pendiente: "bg-yellow-100 text-yellow-800",
-      en_proceso: "bg-blue-100 text-blue-800",
-      resuelto: "bg-green-100 text-green-800",
+        pendiente:
+        "bg-warning-subtle border border-warning-subtle text-warning-emphasis",
+      en_proceso:
+        "bg-info-subtle border border-info-subtle text-info-emphasis",
+      resuelto:
+        "bg-success-subtle border border-success-subtle text-success-emphasis",
     }
-    return variants[estado as keyof typeof variants] || "bg-gray-100 text-gray-800"
-  }
+    return (
+      variants[estado as keyof typeof variants] ||
+      "bg-secondary-subtle border border-secondary-subtle text-secondary-emphasis"
+    )  }
 
   const getEstadoTexto = (estado: string) => {
     const textos = {

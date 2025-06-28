@@ -67,6 +67,15 @@
 <body>
     <div id="app"></div>
 
+     <a
+        href="https://wa.me/51986470369?text=Hola%20vengo%20de%20la%20web%20de%20libro%20de%20reclamos"
+        class="btn btn-success position-fixed bottom-0 end-0 m-3 d-flex align-items-center gap-2"
+        target="_blank" rel="noopener" title="Escribir a WhatsApp"
+    >
+        <i class="bi bi-whatsapp"></i>
+
+    </a>
+
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
