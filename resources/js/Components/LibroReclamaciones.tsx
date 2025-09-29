@@ -72,6 +72,7 @@ export default function LibroReclamaciones() {
     if (window.sucursalesData) {
       setSucursales(window.sucursalesData)
     }
+    console.log("Sucursales cargadas:", window.sucursalesData);
 
     fetchEstadisticas()
   }, [])
@@ -333,6 +334,31 @@ export default function LibroReclamaciones() {
   })
 
   console.log("Filtered Reclamaciones:", filteredReclamaciones)
+
+  /**
+   * Efecto para seleccionar una sucursal automáticamente desde la URL.
+   * Se ejecuta cuando el componente se monta y las sucursales están disponibles.
+   */
+  useEffect(() => {
+    console.log("Sucursales cargadas:", sucursales);
+    // 1. Crear un objeto para leer los parámetros de la URL.
+    const urlParams = new URLSearchParams(window.location.search);
+
+    // 2. Obtener el valor del parámetro 'zona'.
+    const zonaId = urlParams.get('zona');
+
+    // 3. Si 'zonaId' existe y tenemos sucursales cargadas...
+    if (zonaId && sucursales.length > 0) {
+      // 4. Buscar la sucursal que coincida con el ID de la URL.
+      const sucursalFromUrl = sucursales.find(s => s.id === parseInt(zonaId, 10));
+
+      // 5. Si se encuentra la sucursal, llamamos a la función para seleccionarla.
+      if (sucursalFromUrl) {
+        handleSucursalSelect(sucursalFromUrl);
+      }
+    }
+  }, [sucursales]); // El efecto depende de 'sucursales' para asegurar que los datos estén cargados.
+
 //  if (selectedReclamacion && userData) {
 //     return (
 //       <DetalleReclamacion
