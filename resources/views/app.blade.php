@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-bs-theme="">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-bs-theme="dark">
 
 <head>
     <meta charset="utf-8">
@@ -9,9 +9,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link rel="shortcut icon" href="/assets/img/icon.png">
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
+    <!-- Bootstrap Icons (solo iconos) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -22,62 +20,43 @@
     </script>
 
     <script>
-        (function() {
-            const stored = localStorage.getItem('bsTheme');
-            const prefers = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (stored === 'dark' || (stored === null && prefers)) {
-                document.documentElement.setAttribute('data-bs-theme', 'dark');
-            } else {
-                document.documentElement.setAttribute('data-bs-theme', 'light');
-            }
-        })();
+        document.documentElement.setAttribute('data-bs-theme', 'dark');
+        localStorage.setItem('bsTheme', 'dark');
     </script>
 
-    <style>
-        :root,
-        [data-bs-theme="light"] {
-            --bs-primary: #2563eb;
-            --bs-danger: #ef4444;
-            --bs-font-sans-serif: 'Inter', sans-serif;
-        }
-
-        /* [data-bs-theme="dark"] {
-            --bs-primary: #2563eb;
-            --bs-danger: #ef4444;
-        } */
-
-        [data-bs-theme="dark"] .bg-primary {
-            --bs-bg-opacity: 1;
-            background-color: rgb(0 0 0) !important;
-        }
-    </style>
     @php
-        $manifest = json_decode(file_get_contents(public_path('build/manifest.json')), true);
-        $jsFile = $manifest['resources/js/app.jsx']['file'] ?? '';
+        $useViteDev = app()->environment('local');
+        $manifestPath = public_path('build/manifest.json');
+        $hasManifest = file_exists($manifestPath);
     @endphp
 
-    @if ($jsFile)
-        <script type="module" src="{{ asset('build/' . $jsFile) }}"></script>
-    @endif
+    @if ($useViteDev || !$hasManifest)
+        @viteReactRefresh
+        @vite(['resources/js/app.jsx'])
+    @else
+        @php
+            $manifest = json_decode(file_get_contents($manifestPath), true);
+            $entry = $manifest['resources/js/app.jsx'] ?? [];
+            $jsFile = $entry['file'] ?? '';
+            $cssFiles = $entry['css'] ?? [];
+        @endphp
 
-    {{-- @viteReactRefresh
-        @vite(['resources/js/app.jsx']) --}}
+        @if (!empty($cssFiles))
+            @foreach ($cssFiles as $css)
+                <link rel="stylesheet" href="{{ asset('build/' . $css) }}">
+            @endforeach
+        @endif
+
+        @if ($jsFile)
+            <script type="module" src="{{ asset('build/' . $jsFile) }}"></script>
+        @endif
+    @endif
 </head>
 
 <body>
     <div id="app"></div>
 
-     <a
-        href="https://wa.me/51986470369?text=Hola%20vengo%20de%20la%20web%20de%20libro%20de%20reclamos"
-        class="btn btn-success position-fixed bottom-0 end-0 m-3 d-flex align-items-center gap-2"
-        target="_blank" rel="noopener" title="Escribir a WhatsApp"
-    >
-        <i class="bi bi-whatsapp"></i>
-
-    </a>
-
-    <!-- Bootstrap 5 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {{-- Removed floating WhatsApp button from bottom-right corner --}}
 </body>
 
 </html>

@@ -1,11 +1,68 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
+@source '../**/*.tsx';
+@source '../**/*.jsx';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+    "Noto Color Emoji";
+}
+
+/* Base styles with dark mode support */
+body {
+  @apply bg-slate-50 text-slate-900 antialiased transition-colors duration-300;
+}
+
+/* Dark mode base */
+.dark body,
+body.dark {
+  @apply bg-slate-950 text-slate-100;
+}
+
+/* Smooth transitions for theme changes */
+* {
+  @apply transition-colors duration-200;
+}
+
+/* Custom scrollbar for dark mode */
+.dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Premium glass effect for dark mode cards */
+.dark .glass-card {
+  background: rgba(30, 41, 59, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(71, 85, 105, 0.5);
+}
+
+/* Theme toggle button animation */
+.theme-toggle {
+  @apply relative overflow-hidden;
+}
+
+.theme-toggle svg {
+  @apply transition-transform duration-500;
+}
+
+.theme-toggle:hover svg {
+  @apply rotate-12;
 }

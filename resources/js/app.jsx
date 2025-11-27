@@ -1,8 +1,8 @@
 import { createRoot } from "react-dom/client"
 import LibroReclamaciones from "./Components/LibroReclamaciones"
 import "./bootstrap"
-import "bootstrap/dist/css/bootstrap.min.css"
-import "bootstrap/dist/js/bootstrap.bundle.min.js"
+import "../css/app.css"
+import "./styles/main.css"
 
 // Cuando la URL tenga un parámetro "data" en base64 lo decodificamos y lo guardamos en localStorage
 try {
@@ -17,7 +17,6 @@ try {
 } catch (err) {
   console.error("Error parsing data parameter", err)
 }
-
 
 const container = document.getElementById("app")
 const root = createRoot(container)

@@ -1,8 +1,7 @@
-"use client"
+﻿"use client"
 
 import type React from "react"
 import { useState, useEffect } from "react"
-import { Card, CardContent } from "./ui/card"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
@@ -14,15 +13,160 @@ import { Badge } from "./ui/badge"
 import DetalleReclamacionModal from "./DetalleReclamacionModal"
 import GestionReclamacionModal from "./GestionReclamacionModal"
 import Modal from "./ui/modal"
-// import DetalleReclamacion from "./DetalleReclamacion"
-import ReactPaginate from "react-paginate"
-import type { FormData, Estadisticas, Reclamacion, Sucursal,  Ejecutivo, Window} from "../types"
+import type { FormData, Estadisticas, Reclamacion, Sucursal, Ejecutivo } from "../types"
+import ChatbotWidget from "./ChatbotWidget"
+import Footer from "./Footer"
 
-// Obtener sucursales desde window (pasadas desde PHP)
 declare global {
-    interface Window {
-        sucursalesData: Sucursal[]
-    }
+  interface Window {
+    sucursalesData: Sucursal[]
+  }
+}
+
+// Icon Components
+const Icons = {
+  Sun: ({ className = "w-4 h-4" }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+      />
+    </svg>
+  ),
+  Moon: ({ className = "w-4 h-4" }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+      />
+    </svg>
+  ),
+  MapPin: ({ className = "w-4 h-4" }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+      />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  ),
+  Users: ({ className = "w-4 h-4" }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+      />
+    </svg>
+  ),
+  FileText: ({ className = "w-4 h-4" }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+      />
+    </svg>
+  ),
+  Send: ({ className = "w-4 h-4" }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+    </svg>
+  ),
+  Clock: ({ className = "w-4 h-4" }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+      />
+    </svg>
+  ),
+  Check: ({ className = "w-4 h-4" }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+    </svg>
+  ),
+  Search: ({ className = "w-4 h-4" }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+      />
+    </svg>
+  ),
+  Eye: ({ className = "w-4 h-4" }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+      />
+    </svg>
+  ),
+  Upload: ({ className = "w-4 h-4" }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+      />
+    </svg>
+  ),
+  X: ({ className = "w-4 h-4" }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  ),
+  WhatsApp: ({ className = "w-4 h-4" }) => (
+    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+    </svg>
+  ),
+  ChartBar: ({ className = "w-4 h-4" }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+      />
+    </svg>
+  ),
+  Lightbulb: ({ className = "w-4 h-4" }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+      />
+    </svg>
+  ),
+  Calendar: ({ className = "w-4 h-4" }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+      />
+    </svg>
+  ),
 }
 
 export default function LibroReclamaciones() {
@@ -53,7 +197,6 @@ export default function LibroReclamaciones() {
   const [reclamaciones, setReclamaciones] = useState<Reclamacion[]>([])
   const [loading, setLoading] = useState(false)
   const [loadingReclamaciones, setLoadingReclamaciones] = useState(true)
-//   const [success, setSuccess] = useState(false)
   const [errors, setErrors] = useState<any>({})
   const [searchTerm, setSearchTerm] = useState("")
   const [filtroEstado, setFiltroEstado] = useState("")
@@ -64,20 +207,41 @@ export default function LibroReclamaciones() {
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [documents, setDocuments] = useState<File[]>([])
   const [userData, setUserData] = useState<any | null>(null)
+  const [showGestionModal, setShowGestionModal] = useState(false)
 
-   const [darkMode, setDarkMode] = useState(false)
+  // Dark mode state
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("darkMode")
+      if (saved !== null) return JSON.parse(saved)
+      return window.matchMedia("(prefers-color-scheme: dark)").matches
+    }
+    return false
+  })
+
+  // Apply dark mode class to document
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add("dark")
+      document.body.classList.add("dark")
+    } else {
+      document.documentElement.classList.remove("dark")
+      document.body.classList.remove("dark")
+    }
+    localStorage.setItem("darkMode", JSON.stringify(darkMode))
+  }, [darkMode])
+
+  const toggleDarkMode = () => {
+    setDarkMode((prev: boolean) => !prev)
+  }
 
   useEffect(() => {
-    // Cargar sucursales desde window (pasadas desde PHP)
     if (window.sucursalesData) {
       setSucursales(window.sucursalesData)
     }
-    console.log("Sucursales cargadas:", window.sucursalesData);
-
     fetchEstadisticas()
   }, [])
 
-  // Obtener datos de usuario almacenados en localStorage si existen
   useEffect(() => {
     try {
       const stored = localStorage.getItem("data")
@@ -85,32 +249,24 @@ export default function LibroReclamaciones() {
         setUserData(JSON.parse(stored))
       }
     } catch (err) {
-     console.error("Invalid user data in localStorage", err)
-  }
-}, [])
-
-  useEffect(() => {
-    const stored = localStorage.getItem("bsTheme")
-    if (stored === null) {
-      setDarkMode(window.matchMedia("(prefers-color-scheme: dark)").matches)
-    } else {
-      setDarkMode(stored === "dark")
+      console.error("Invalid user data in localStorage", err)
     }
   }, [])
-
-   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.setAttribute("data-bs-theme", "dark")
-    } else {
-      document.documentElement.setAttribute("data-bs-theme", "light")
-    }
-    localStorage.setItem("bsTheme", darkMode ? "dark" : "light")
-  }, [darkMode])
 
   useEffect(() => {
     fetchReclamaciones()
   }, [currentPage])
 
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const zonaId = urlParams.get("zona")
+    if (zonaId && sucursales.length > 0) {
+      const sucursalFromUrl = sucursales.find((s) => s.id === Number.parseInt(zonaId, 10))
+      if (sucursalFromUrl) {
+        handleSucursalSelect(sucursalFromUrl)
+      }
+    }
+  }, [sucursales])
 
   const fetchEjecutivos = async (sucursalId: number) => {
     setLoadingEjecutivos(true)
@@ -120,7 +276,6 @@ export default function LibroReclamaciones() {
       if (data.status === 200) {
         setEjecutivos(data.data)
       } else {
-        console.error("Error fetching ejecutivos:", data.message)
         setEjecutivos([])
       }
     } catch (error) {
@@ -156,49 +311,30 @@ export default function LibroReclamaciones() {
   }
 
   const handleInputChange = (field: keyof FormData, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }))
-
+    setFormData((prev) => ({ ...prev, [field]: value }))
     if (errors[field]) {
-      setErrors((prev: any) => ({
-        ...prev,
-        [field]: undefined,
-      }))
+      setErrors((prev: any) => ({ ...prev, [field]: undefined }))
     }
   }
 
   const handleSucursalSelect = (sucursal: Sucursal) => {
     setSelectedSucursal(sucursal)
-    setSelectedEjecutivo(null) // Reset ejecutivo cuando cambia sucursal
-    setEjecutivos([]) // Limpiar ejecutivos anteriores
-    setFormData((prev) => ({
-      ...prev,
-      sucursal_id: sucursal.id.toString(),
-      ejecutivo_id: "", // Reset ejecutivo_id
-    }))
-
-    // Cargar ejecutivos de la sucursal seleccionada
+    setSelectedEjecutivo(null)
+    setEjecutivos([])
+    setFormData((prev) => ({ ...prev, sucursal_id: sucursal.id.toString(), ejecutivo_id: "" }))
     fetchEjecutivos(sucursal.id)
   }
 
   const handleEjecutivoSelect = (ejecutivo: Ejecutivo) => {
     setSelectedEjecutivo(ejecutivo)
-    setFormData((prev) => ({
-      ...prev,
-      ejecutivo_id: ejecutivo.id.toString(),
-    }))
+    setFormData((prev) => ({ ...prev, ejecutivo_id: ejecutivo.id.toString() }))
   }
 
- const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
     if (files.length === 0) return
     setImages((prev) => [...prev, ...files])
-    setImagePreviews((prev) => [
-      ...prev,
-      ...files.map((f) => URL.createObjectURL(f)),
-    ])
+    setImagePreviews((prev) => [...prev, ...files.map((f) => URL.createObjectURL(f))])
     e.target.value = ""
   }
 
@@ -227,30 +363,27 @@ export default function LibroReclamaciones() {
     setLoading(true)
     setErrors({})
 
-      const token = document.querySelector("meta[name=\"csrf-token\"]")?.getAttribute("content");
+    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content")
 
-      const payload = new FormData();
-    Object.entries(formData).forEach(([key, value]) => payload.append(key, value));
-    images.forEach((f) => payload.append("images[]", f));
-    documents.forEach((f) => payload.append("documents[]", f));
+    const payload = new FormData()
+    Object.entries(formData).forEach(([key, value]) => payload.append(key, value))
+    images.forEach((f) => payload.append("images[]", f))
+    documents.forEach((f) => payload.append("documents[]", f))
 
     try {
       const response = await fetch("/api/reclamaciones", {
         method: "POST",
-        headers: {
-          "X-CSRF-TOKEN": token || "",
-        },
-         credentials: "same-origin",
+        headers: { "X-CSRF-TOKEN": token || "" },
+        credentials: "same-origin",
         body: payload,
       })
 
       const data = await response.json()
       if (response.ok) {
-        // setSuccess(true)
         Swal.fire({
           icon: "success",
-          title: "¡Reclamo enviado exitosamente!",
-          text: data.message || "Reclamo enviado correctamente",
+          title: "Reclamo enviado exitosamente",
+          text: data.message || "Su reclamo ha sido registrado correctamente",
           timer: 5000,
           timerProgressBar: true,
         })
@@ -273,9 +406,8 @@ export default function LibroReclamaciones() {
         setDocuments([])
         fetchEstadisticas()
         fetchReclamaciones()
-        // setTimeout(() => setSuccess(false), 5000)
       } else {
-         Swal.fire({
+        Swal.fire({
           icon: "error",
           title: "Error al enviar reclamo",
           text: data.message || "No se pudo enviar la reclamación",
@@ -283,9 +415,8 @@ export default function LibroReclamaciones() {
         setErrors(data.errors || {})
       }
     } catch (error) {
-
       console.error("Error:", error)
-       Swal.fire({
+      Swal.fire({
         icon: "error",
         title: "Error al enviar reclamo",
         text: "Error al enviar la reclamación",
@@ -296,8 +427,8 @@ export default function LibroReclamaciones() {
     }
   }
 
-  const getEstadoBadge = (estado: string) => {
-     switch (estado.toLowerCase()) {
+  const getEstadoBadge = (estado: string): "pending" | "process" | "resolved" => {
+    switch (estado.toLowerCase()) {
       case "pendiente":
         return "pending"
       case "en_proceso":
@@ -305,788 +436,912 @@ export default function LibroReclamaciones() {
       case "resuelto":
         return "resolved"
       default:
-        return "primary"
+        return "pending"
     }
   }
 
   const getEstadoTexto = (estado: string) => {
-    const textos = {
+    const textos: { [key: string]: string } = {
       pendiente: "Pendiente",
       en_proceso: "En Proceso",
       resuelto: "Resuelto",
     }
-    return textos[estado.toLowerCase() as keyof typeof textos] || estado
+    return textos[estado.toLowerCase()] || estado
   }
+
+  const whatsappMessage = encodeURIComponent(
+    "Hola, vengo del Libro de Reclamaciones de FASTNETPERU.%0A%0AQuisiera gestionar la siguiente consulta:",
+  )
+
+  const contactosWhatsapp = [
+    { label: "Reclamos", phone: "51986470369" },
+    { label: "Soporte", phone: "51978451680" },
+    { label: "Ventas", phone: "51942059874" },
+    { label: "Cobranza", phone: "51940842303" },
+  ]
 
   const filteredReclamaciones = reclamaciones.filter((reclamacion) => {
     const term = searchTerm.toLowerCase()
-    const ejecutivoNombre = `${reclamacion.ejecutive?.name ?? ""} ${reclamacion.ejecutive?.lastname ?? ""}`.toLowerCase()
+    const ejecutivoNombre =
+      `${reclamacion.ejecutive?.name ?? ""} ${reclamacion.ejecutive?.lastname ?? ""}`.toLowerCase()
     const matchesSearch =
-    reclamacion.numero_reclamacion?.toLowerCase().includes(term) ||
-    reclamacion.nombre_completo.toLowerCase().includes(term) ||
-    ejecutivoNombre.includes(term) ||
-    reclamacion.asunto?.toLowerCase().includes(term)
-
+      reclamacion.numero_reclamacion?.toLowerCase().includes(term) ||
+      reclamacion.nombre_completo.toLowerCase().includes(term) ||
+      ejecutivoNombre.includes(term) ||
+      reclamacion.asunto?.toLowerCase().includes(term)
     const matchesEstado =
-      filtroEstado === "" || reclamacion.estado.toLowerCase() === filtroEstado.toLowerCase()
-
+      filtroEstado === "" || filtroEstado === "all" || reclamacion.estado.toLowerCase() === filtroEstado.toLowerCase()
     return matchesSearch && matchesEstado
   })
 
-  console.log("Filtered Reclamaciones:", filteredReclamaciones)
-
-  /**
-   * Efecto para seleccionar una sucursal automáticamente desde la URL.
-   * Se ejecuta cuando el componente se monta y las sucursales están disponibles.
-   */
-  useEffect(() => {
-    console.log("Sucursales cargadas:", sucursales);
-    // 1. Crear un objeto para leer los parámetros de la URL.
-    const urlParams = new URLSearchParams(window.location.search);
-
-    // 2. Obtener el valor del parámetro 'zona'.
-    const zonaId = urlParams.get('zona');
-
-    // 3. Si 'zonaId' existe y tenemos sucursales cargadas...
-    if (zonaId && sucursales.length > 0) {
-      // 4. Buscar la sucursal que coincida con el ID de la URL.
-      const sucursalFromUrl = sucursales.find(s => s.id === parseInt(zonaId, 10));
-
-      // 5. Si se encuentra la sucursal, llamamos a la función para seleccionarla.
-      if (sucursalFromUrl) {
-        handleSucursalSelect(sucursalFromUrl);
-      }
-    }
-  }, [sucursales]); // El efecto depende de 'sucursales' para asegurar que los datos estén cargados.
-
-//  if (selectedReclamacion && userData) {
-//     return (
-//       <DetalleReclamacion
-//         reclamacion={selectedReclamacion}
-//         onVolver={() => setSelectedReclamacion(null)}
-//         onActualizar={() => {
-//           fetchReclamaciones()
-//           fetchEstadisticas()
-//         }}
-//       />
-//     )
-//   }
-
   return (
-<div className="min-vh-100 bg-body">      {/* Header Profesional */}
-        <header className="bg-primary text-white">
-        <div className="container position-relative text-center py-4">
-          <div className="d-inline-flex align-items-center">
-            <div className="col-auto">
-              <div className="logo-container d-flex align-items-center">
-                {/* <div className="d-flex me-3">
-                  <i className="bi bi-broadcast me-2 fs-4"></i>
-                  <i className="bi bi-wifi me-2 fs-4"></i>
-                  <i className="bi bi-tv fs-4"></i>
-                </div> */}
-                 <img
-                  src="http://almacen.fastnetperu.com.pe/img/logo-light.png"
-                  alt="FastNet Perú"
-                  className="me-3"
-                  style={{ height: "60px" }}
-                />
-                <div className="border-start border-light ps-3 text-start">
-                    <h1 className="text-white mb-0 fs-3 fw-bold">FastNet Perú</h1>
-                    <p className="text-white-50 mb-0 small">TV • Internet • IPTV</p>
-                </div>
-              </div>
-              <button
-                    className="btn mt-4 btn-sm btn-outline-light position-absolute top-0 end-0"
-                    onClick={() => setDarkMode(!darkMode)}
-                    type="button"
+    <div className={`min-h-screen transition-colors duration-300 ${darkMode ? "bg-slate-950" : "bg-slate-50"}`}>
+      {/* Header */}
+      <header
+        className={`sticky top-0 z-50 border-b shadow-sm transition-colors duration-300 ${
+          darkMode ? "bg-slate-900/95 backdrop-blur-md border-slate-700/50" : "bg-white border-slate-200"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col lg:flex-row items-center justify-between py-4 gap-4">
+            {/* Brand */}
+            <div className="flex items-center gap-4">
+              <img
+                src="http://almacen.fastnetperu.com.pe/img/logo-light.png"
+                alt="FASTNETPERU"
+                className="h-12 w-auto object-contain"
+              />
+              <div className="text-center lg:text-left">
+                <span
+                  className={`inline-flex items-center px-2.5 py-0.5 text-xs font-semibold rounded-full mb-1 ${
+                    darkMode ? "bg-blue-500/20 text-blue-400" : "bg-blue-50 text-blue-600"
+                  }`}
                 >
-                    {darkMode ? <i className="bi bi-sun-fill" /> : <i className="bi bi-moon-fill" />}
-                </button>
+                  Libro de Reclamaciones
+                </span>
+                <h1 className={`text-xl font-bold ${darkMode ? "text-white" : "text-slate-900"}`}>FASTNETPERU</h1>
+                <p className={`text-sm ${darkMode ? "text-slate-400" : "text-slate-500"}`}>TV | Internet | IPTV</p>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-3">
+              {/* Contact Pills */}
+              <div className="flex flex-wrap justify-center gap-2">
+                {contactosWhatsapp.map((contacto) => (
+                  <a
+                    key={contacto.phone}
+                    href={`https://wa.me/${contacto.phone}?text=${whatsappMessage}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`inline-flex items-center gap-2 px-3 py-2 border rounded-full text-xs font-medium transition-all duration-200 ${
+                      darkMode
+                        ? "bg-slate-800/50 border-slate-700 text-slate-300 hover:border-green-500 hover:text-green-400 hover:bg-green-500/10"
+                        : "bg-slate-50 border-slate-200 text-slate-600 hover:border-green-500 hover:text-green-600 hover:bg-green-50"
+                    }`}
+                  >
+                    <Icons.WhatsApp className="w-4 h-4 text-green-500" />
+                    <span className="hidden sm:inline">{contacto.label}</span>
+                    <span className="sm:hidden">{contacto.label.slice(0, 3)}</span>
+                  </a>
+                ))}
+              </div>
+
+              {/* Dark Mode Toggle Button */}
+              <button
+                onClick={toggleDarkMode}
+                className={`p-2.5 rounded-xl border-2 transition-all duration-300 ${
+                  darkMode
+                    ? "bg-slate-800 border-slate-600 text-yellow-400 hover:bg-slate-700 hover:border-yellow-500/50"
+                    : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-blue-500/50 hover:text-blue-600"
+                }`}
+                title={darkMode ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+              >
+                {darkMode ? <Icons.Sun className="w-5 h-5" /> : <Icons.Moon className="w-5 h-5" />}
+              </button>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="container py-4">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Hero Section */}
+        <section className="text-center mb-10">
+          <h2
+            className={`text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight mb-3 ${
+              darkMode ? "text-white" : "text-slate-900"
+            }`}
+          >
+            Libro de Reclamaciones
+            {selectedSucursal && (
+              <span
+                className="inline-flex items-center ml-3 px-3 py-1 text-base font-semibold text-white rounded-full"
+                style={{ backgroundColor: selectedSucursal.color }}
+              >
+                {selectedSucursal.name}
+              </span>
+            )}
+          </h2>
+          <p className={`text-base max-w-2xl mx-auto ${darkMode ? "text-slate-400" : "text-slate-600"}`}>
+            Registra tu reclamo sobre nuestros servicios. Respondemos con prioridad y seguimiento en linea.
+          </p>
+        </section>
 
-        {/* Título principal */}
-        <div className="text-center mb-5">
-          <h1 className="display-4 fw-bold text-body mb-3">Libro de Reclamaciones</h1>
-          <p className="lead text-muted">Registra tu reclamo sobre nuestros servicios de TV, Internet e IPTV</p>
-        </div>
-
-        {/* Botones de sucursales */}
-        <div className="row justify-content-center mb-5">
-          <div className="col-12">
-            <div className="d-flex flex-wrap gap-3 justify-content-center">
-              {sucursales.map((sucursal) => (
-                <Button
+        {/* Branch Selection */}
+        <section className="mb-8">
+          <div className="flex flex-wrap justify-center gap-3">
+            {sucursales.map((sucursal) => {
+              const isActive = selectedSucursal?.id === sucursal.id
+              return (
+                <button
                   key={sucursal.id}
-                  variant={selectedSucursal?.id === sucursal.id ? "primary" : "outline"}
                   onClick={() => handleSucursalSelect(sucursal)}
-                  className={`position-relative ${selectedSucursal?.id === sucursal.id ? "shadow" : ""}`}
-                  style={{
-                    borderColor: sucursal.color,
-                    color: selectedSucursal?.id === sucursal.id ? "white" : sucursal.color,
-                    backgroundColor: selectedSucursal?.id === sucursal.id ? sucursal.color : "transparent",
-                  }}
+                  className={`
+                    min-w-[120px] px-5 py-3 rounded-xl text-sm font-semibold uppercase tracking-wider
+                    transition-all duration-200 border-2
+                    ${
+                      isActive
+                        ? "text-white shadow-lg scale-105"
+                        : darkMode
+                          ? "bg-slate-800/50 border-slate-700 text-slate-300 hover:border-slate-500"
+                          : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
+                    }
+                  `}
+                  style={isActive ? { backgroundColor: sucursal.color, borderColor: sucursal.color } : {}}
                 >
-                  <span className="position-relative">{sucursal.correlative}</span>
-                </Button>
-              ))}
-            </div>
+                  <Icons.MapPin
+                    className={`inline-block w-4 h-4 mr-2 ${isActive ? "text-white" : darkMode ? "text-slate-400" : "text-slate-400"}`}
+                  />
+                  {sucursal.name}
+                </button>
+              )
+            })}
           </div>
-        </div>
+        </section>
 
-        {/* Información de sucursal seleccionada */}
+        {/* Branch Info Card */}
         {selectedSucursal && (
-          <div className="row justify-content-center mb-4">
-            <div className="col-lg-8">
-              <Card className="border-0" style={{ borderLeft: `4px solid ${selectedSucursal.color}` }}>
-                <CardContent className="p-3">
-                  <div className="row align-items-center">
-                    <div className="col-md-8">
-                      <h5 className="mb-1 fw-bold" style={{ color: selectedSucursal.color }}>
-                        {selectedSucursal.name}
-                      </h5>
-                      <p className="text-muted mb-0 small">
-                        <i className="bi bi-geo-alt me-1"></i>
-                        {selectedSucursal.address}
-                      </p>
-                    </div>
-                    <div className="col-md-4 text-md-end">
-                        <span className="badge bg-body-secondary text-body border">{selectedSucursal.ubigeo}</span>                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        )}
-
-        {/* Ejecutivos de la sucursal seleccionada */}
-        {selectedSucursal && (
-          <div className="row justify-content-center mb-5">
-            <div className="col-lg-10">
-              <Card className="fade-in">
-                <CardContent className="p-4">
-                  <div className="d-flex align-items-center mb-4">
-                    <div className="icon-circle icon-circle-primary me-3">
-                      <i className="bi bi-people-fill"></i>
-                    </div>
-                    <div>
-                      <h3 className="h5 mb-1 fw-bold">Ejecutivos de Atención</h3>
-                      <p className="text-muted mb-0">Seleccione el ejecutivo que le atendió</p>
-                    </div>
-                  </div>
-
-                  {loadingEjecutivos ? (
-                    <div className="text-center py-4">
-                      <div className="spinner-border text-primary" role="status">
-                        <span className="visually-hidden">Cargando ejecutivos...</span>
-                      </div>
-                      <p className="text-muted mt-2">Cargando ejecutivos...</p>
-                    </div>
-                  ) : ejecutivos.length === 0 ? (
-                    <div className="text-center py-4">
-                      <i className="bi bi-person-x text-muted" style={{ fontSize: "3rem" }}></i>
-                      <h5 className="text-muted mt-3">No hay ejecutivos disponibles</h5>
-                      <p className="text-muted">En esta sucursal no hay ejecutivos registrados</p>
-                    </div>
-                  ) : (
-                    <div className="row g-3">
-                      {ejecutivos.map((ejecutivo) => (
-                        <div key={ejecutivo.id} className="col-md-6 col-lg-4">
-                          <Card
-                            className={`cursor-pointer h-100 ${
-                              selectedEjecutivo?.id === ejecutivo.id ? "border-primary shadow" : ""
-                            }`}
-                            onClick={() => handleEjecutivoSelect(ejecutivo)}
-                            style={{
-                              borderColor: selectedEjecutivo?.id === ejecutivo.id ? selectedSucursal.color : undefined,
-                              backgroundColor:
-                                selectedEjecutivo?.id === ejecutivo.id ? `${selectedSucursal.color}10` : undefined,
-                            }}
-                          >
-                            <CardContent className="p-3 text-center">
-                              <div className="position-relative mb-3">
-                                <img
-                                  src={ejecutivo.image_url || "/placeholder.svg"}
-                                  alt={ejecutivo.full_name}
-                                  className="rounded-circle border border-3"
-                                  style={{
-                                    width: "80px",
-                                    height: "80px",
-                                    objectFit: "cover",
-                                    borderColor:
-                                      selectedEjecutivo?.id === ejecutivo.id ? selectedSucursal.color : "#e2e8f0",
-                                  }}
-                                  onError={(e) => {
-                                    const target = e.target as HTMLImageElement
-                                    target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(ejecutivo.full_name)}&background=random&color=fff&size=80`
-                                  }}
-                                />
-                                {selectedEjecutivo?.id === ejecutivo.id && (
-                                  <div
-                                    className="position-absolute top-0 end-0 rounded-circle d-flex align-items-center justify-content-center"
-                                    style={{
-                                      width: "24px",
-                                      height: "24px",
-                                      backgroundColor: selectedSucursal.color,
-                                      transform: "translate(25%, -25%)",
-                                    }}
-                                  >
-                                    <i className="bi bi-check text-white" style={{ fontSize: "12px" }}></i>
-                                  </div>
-                                )}
-                              </div>
-                              <h6 className="fw-bold mb-1">{ejecutivo.full_name}</h6>
-                              {/* <p className="text-muted small mb-2">
-                                {ejecutivo.doc_type}: {ejecutivo.doc_number}
-                              </p> */}
-                              {/* {ejecutivo.phone && (
-                                <p className="text-muted small mb-1">
-                                  <i className="bi bi-telephone me-1"></i>
-                                  {ejecutivo.phone}
-                                </p>
-                              )} */}
-                              {/* {ejecutivo.email && (
-                                <p className="text-muted small mb-0">
-                                  <i className="bi bi-envelope me-1"></i>
-                                  {ejecutivo.email}
-                                </p>
-                              )} */}
-                            </CardContent>
-                          </Card>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        )}
-
-        <div className="row g-4 mb-5">
-          {/* Formulario */}
-          <div className="col-lg-8">
-            <Card className="fade-in">
-              <CardContent className="p-4">
-                <div className="d-flex align-items-center mb-4">
-                  <div className="icon-circle icon-circle-primary me-3">
-                    <i className="bi bi-telephone-fill"></i>
+          <section className="mb-8">
+            <div
+              className={`rounded-xl border-l-4 shadow-sm p-4 sm:p-6 transition-colors duration-300 ${
+                darkMode ? "bg-slate-900 border-slate-700" : "bg-white"
+              }`}
+              style={{ borderLeftColor: selectedSucursal.color }}
+            >
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center"
+                    style={{ backgroundColor: `${selectedSucursal.color}20` }}
+                  >
+                    <Icons.MapPin className="w-6 h-6" style={{ color: selectedSucursal.color }} />
                   </div>
                   <div>
-                    <h2 className="h4 mb-1 fw-bold">Formulario de Reclamo</h2>
-                    <p className="text-muted mb-0">Complete los datos para registrar su reclamo</p>
+                    <p
+                      className={`text-xs font-semibold uppercase tracking-wider mb-1 ${darkMode ? "text-slate-400" : "text-slate-400"}`}
+                    >
+                      Sucursal
+                    </p>
+                    <h3
+                      className={`text-lg font-bold ${darkMode ? "text-white" : ""}`}
+                      style={{ color: selectedSucursal.color }}
+                    >
+                      {selectedSucursal.name}
+                    </h3>
+                    <p className={`text-sm ${darkMode ? "text-slate-400" : "text-slate-500"}`}>
+                      {selectedSucursal.address || "Direccion no disponible"}
+                    </p>
                   </div>
                 </div>
+                <span
+                  className={`inline-flex items-center gap-2 px-3 py-1.5 border rounded-full text-xs font-medium transition-all duration-200 ${
+                    darkMode
+                      ? "bg-slate-800/50 border-slate-700 text-slate-300"
+                      : "bg-slate-50 border-slate-200 text-slate-600"
+                  }`}
+                >
+                  <Icons.Clock className="w-3.5 h-3.5" />
+                  Atencion prioritaria
+                </span>
+              </div>
+            </div>
+          </section>
+        )}
 
-                <form onSubmit={handleSubmit}>
-                  <div className="row g-3 mb-4">
-                    <div className="col-md-6">
-                      <Label htmlFor="nombre_completo">Nombre Completo *</Label>
-                      <Input
-                        id="nombre_completo"
-                        value={formData.nombre_completo}
-                        onChange={(e) => handleInputChange("nombre_completo", e.target.value)}
-                        className={errors.nombre_completo ? "is-invalid" : ""}
-                        placeholder="Ingrese su nombre completo"
-                      />
-                      {errors.nombre_completo && <div className="invalid-feedback">{errors.nombre_completo[0]}</div>}
-                    </div>
+        {/* Executives Grid */}
+        {selectedSucursal && (
+          <section className="mb-8">
+            <h3
+              className={`text-lg font-semibold mb-4 flex items-center gap-2 ${darkMode ? "text-white" : "text-slate-900"}`}
+            >
+              <Icons.Users className={`w-5 h-5 ${darkMode ? "text-blue-400" : "text-blue-600"}`} />
+              Ejecutivos de Atencion
+            </h3>
+            <p className={`text-sm mb-6 ${darkMode ? "text-slate-400" : "text-slate-600"}`}>
+              Seleccione el ejecutivo que le atendio
+            </p>
+            {loadingEjecutivos ? (
+              <div className="flex justify-center py-8">
+                <div
+                  className={`animate-spin rounded-full h-8 w-8 border-b-2 ${darkMode ? "border-blue-400" : "border-blue-600"}`}
+                ></div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                {ejecutivos.map((ejecutivo) => {
+                  const isSelected = selectedEjecutivo?.id === ejecutivo.id
+                  const initials = `${ejecutivo.name.charAt(0)}${ejecutivo.lastname?.charAt(0) || ""}`
 
-                    <div className="col-md-6">
-                      <Label htmlFor="correo_electronico">Correo Electrónico *</Label>
-                      <Input
-                        id="correo_electronico"
-                        type="email"
-                        value={formData.correo_electronico}
-                        onChange={(e) => handleInputChange("correo_electronico", e.target.value)}
-                        className={errors.correo_electronico ? "is-invalid" : ""}
-                        placeholder="ejemplo@correo.com"
-                      />
-                      {errors.correo_electronico && (
-                        <div className="invalid-feedback">{errors.correo_electronico[0]}</div>
-                      )}
-                    </div>
+                  return (
+                    <button
+                      key={ejecutivo.id}
+                      onClick={() => handleEjecutivoSelect(ejecutivo)}
+                      className={`
+                        flex items-center gap-3 p-3 rounded-xl border-2 transition-all duration-200 text-left
+                        ${
+                          isSelected
+                            ? darkMode
+                              ? "border-blue-500 bg-blue-500/10 shadow-lg shadow-blue-500/25"
+                              : "border-blue-500 bg-blue-50 shadow-md shadow-blue-500/10"
+                            : darkMode
+                              ? "border-slate-700 bg-slate-800/50 hover:border-slate-500 hover:bg-slate-800"
+                              : "border-slate-200 bg-white hover:border-blue-300 hover:shadow-md"
+                        }
+                      `}
+                    >
+                      {/* Profile Picture Circle */}
+                      <div className="flex-shrink-0">
+                        <img
+                          src={`https://almacen.fastnetperu.com.pe/api/image_person/${ejecutivo.relative_id}/full`}
+                          alt={`${ejecutivo.name} ${ejecutivo.lastname}`}
+                          className={`w-12 h-12 rounded-full object-cover border-2 ${
+                            isSelected ? "border-blue-500" : darkMode ? "border-slate-600" : "border-slate-200"
+                          }`}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement
+                            target.onerror = null
+                            target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(ejecutivo.name + " " + ejecutivo.lastname)}&background=random&color=fff&size=48`
+                          }}
+                        />
+                      </div>
 
-                    <div className="col-md-6">
-                      <Label htmlFor="telefono">Teléfono *</Label>
-                      <Input
-                        id="telefono"
-                        value={formData.telefono}
-                        onChange={(e) => handleInputChange("telefono", e.target.value)}
-                        className={errors.telefono ? "is-invalid" : ""}
-                        placeholder="999 999 999"
-                      />
-                      {errors.telefono && <div className="invalid-feedback">{errors.telefono[0]}</div>}
-                    </div>
+                      {/* Executive Info */}
+                      <div className="flex-1 min-w-0">
+                        <p
+                          className={`text-sm font-bold truncate ${
+                            isSelected
+                              ? darkMode
+                                ? "text-blue-300"
+                                : "text-blue-700"
+                              : darkMode
+                                ? "text-white"
+                                : "text-slate-900"
+                          }`}
+                        >
+                          {ejecutivo.name} {ejecutivo.lastname}
+                        </p>
+                        <p
+                          className={`text-xs truncate ${
+                            isSelected
+                              ? darkMode
+                                ? "text-blue-400/80"
+                                : "text-blue-600/80"
+                              : darkMode
+                                ? "text-slate-400"
+                                : "text-slate-500"
+                          }`}
+                        >
+                          {selectedSucursal.name}
+                        </p>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+          </section>
+        )}
 
-                    <div className="col-md-6">
-                      <Label htmlFor="zona">Zona de Servicio *</Label>
-                      <Select value={formData.zona} onValueChange={(value) => handleInputChange("zona", value)}>
-                        <SelectTrigger className={errors.zona ? "is-invalid" : ""}>
-                          <SelectValue placeholder="Seleccionar zona de servicio" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="zona1">Zona Centro</SelectItem>
-                          <SelectItem value="zona2">Zona Norte</SelectItem>
-                          <SelectItem value="zona3">Zona Sur</SelectItem>
-                          <SelectItem value="zona4">Zona Este</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {errors.zona && <div className="invalid-feedback d-block">{errors.zona[0]}</div>}
-                    </div>
-
-                    <div className="col-md-6">
-                      <Label htmlFor="tipo_reclamo">Tipo de Reclamo *</Label>
-                      <Select
-                        value={formData.tipo_reclamo}
-                        onValueChange={(value) => handleInputChange("tipo_reclamo", value)}
-                      >
-                        <SelectTrigger className={errors.tipo_reclamo ? "is-invalid" : ""}>
-                          <SelectValue placeholder="Seleccionar tipo de reclamo" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="internet">Problemas de Internet</SelectItem>
-                          <SelectItem value="tv_cable">TV por Cable</SelectItem>
-                          <SelectItem value="iptv">Servicio IPTV</SelectItem>
-                          <SelectItem value="facturacion">Facturación</SelectItem>
-                          <SelectItem value="atencion_cliente">Atención al Cliente</SelectItem>
-                          <SelectItem value="instalacion">Instalación</SelectItem>
-                          <SelectItem value="otros">Otros</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {errors.tipo_reclamo && <div className="invalid-feedback d-block">{errors.tipo_reclamo[0]}</div>}
-                    </div>
-
-                    <div className="col-md-6">
-                      <Label htmlFor="asunto">Asunto *</Label>
-                      <Input
-                        id="asunto"
-                        value={formData.asunto}
-                        onChange={(e) => handleInputChange("asunto", e.target.value)}
-                        className={errors.asunto ? "is-invalid" : ""}
-                        placeholder="Resumen del problema"
-                      />
-                      {errors.asunto && <div className="invalid-feedback">{errors.asunto[0]}</div>}
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Form Section */}
+          <div className="lg:col-span-2">
+            <div
+              className={`rounded-2xl border shadow-sm overflow-hidden ${
+                darkMode ? "bg-slate-900/80 border-slate-700/50 backdrop-blur-sm" : "bg-white border-slate-200"
+              }`}
+            >
+              <div className={`px-6 py-4 border-b ${darkMode ? "border-slate-700/50" : "border-slate-100"}`}>
+                <h3
+                  className={`text-lg font-semibold flex items-center gap-2 ${darkMode ? "text-white" : "text-slate-900"}`}
+                >
+                  <Icons.FileText className={`w-5 h-5 ${darkMode ? "text-blue-400" : "text-blue-600"}`} />
+                  Formulario de reclamo
+                </h3>
+              </div>
+              <div className="p-6">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Personal Info Section */}
+                  <div>
+                    <h4
+                      className={`text-sm font-semibold uppercase tracking-wider mb-4 ${
+                        darkMode ? "text-slate-300" : "text-slate-500"
+                      }`}
+                    >
+                      Información Personal
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="nombre_completo">Nombre Completo *</Label>
+                        <Input
+                          id="nombre_completo"
+                          value={formData.nombre_completo}
+                          onChange={(e) => handleInputChange("nombre_completo", e.target.value)}
+                          placeholder="Ingrese su nombre completo"
+                          className={`mt-1 ${darkMode ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : ""}`}
+                        />
+                        {errors.nombre_completo && (
+                          <p className="mt-1 text-xs text-red-500">{errors.nombre_completo}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Label htmlFor="correo_electronico">Correo Electrónico *</Label>
+                        <Input
+                          id="correo_electronico"
+                          type="email"
+                          value={formData.correo_electronico}
+                          onChange={(e) => handleInputChange("correo_electronico", e.target.value)}
+                          placeholder="ejemplo@correo.com"
+                          className={`mt-1 ${darkMode ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : ""}`}
+                        />
+                        {errors.correo_electronico && (
+                          <p className="mt-1 text-xs text-red-500">{errors.correo_electronico}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Label htmlFor="telefono">Teléfono *</Label>
+                        <Input
+                          id="telefono"
+                          type="tel"
+                          value={formData.telefono}
+                          onChange={(e) => handleInputChange("telefono", e.target.value)}
+                          placeholder="999 999 999"
+                          className={`mt-1 ${darkMode ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : ""}`}
+                        />
+                        {errors.telefono && <p className="mt-1 text-xs text-red-500">{errors.telefono}</p>}
+                      </div>
+                      <div>
+                        <Label htmlFor="zona">Zona / Dirección</Label>
+                        <Input
+                          id="zona"
+                          value={formData.zona}
+                          onChange={(e) => handleInputChange("zona", e.target.value)}
+                          placeholder="Su zona o dirección"
+                          className={`mt-1 ${darkMode ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : ""}`}
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  <div className="mb-4">
-                    <Label htmlFor="descripcion">Descripción del Reclamo *</Label>
-                    <Textarea
-                      id="descripcion"
-                      rows={4}
-                      value={formData.descripcion}
-                      onChange={(e) => handleInputChange("descripcion", e.target.value)}
-                      className={errors.descripcion ? "is-invalid" : ""}
-                      placeholder="Describe detalladamente el problema con nuestros servicios de telecomunicaciones..."
-                    />
-                    {errors.descripcion && <div className="invalid-feedback">{errors.descripcion[0]}</div>}
-                  </div>
-
-                 <div className="mb-4">
-                    <Label>Evidencia Fotográfica</Label>
-                    <Input type="file" multiple accept="image/*" onChange={handleImageChange} />
-                    <div className="mt-3 d-flex flex-wrap gap-2">
-                      {imagePreviews.map((src, idx) => (
-                        <div key={idx} className="position-relative">
-                          <img
-                            src={src}
-                            alt={`img-${idx}`}
-                            style={{ width: "80px", height: "80px", objectFit: "cover" }}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeImage(idx)}
-                            className="btn-close position-absolute top-0 end-0 bg-white rounded-circle"
-                            style={{ transform: "translate(50%,-50%)" }}
-                          />
+                  {/* Claim Details Section */}
+                  <div>
+                    <h4
+                      className={`text-sm font-semibold uppercase tracking-wider mb-4 ${
+                        darkMode ? "text-slate-300" : "text-slate-500"
+                      }`}
+                    >
+                      Detalle del Reclamo
+                    </h4>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="tipo_reclamo">Tipo de Reclamo *</Label>
+                          <Select
+                            value={formData.tipo_reclamo}
+                            onValueChange={(value) => handleInputChange("tipo_reclamo", value)}
+                          >
+                            <SelectTrigger
+                              className={`mt-1 ${darkMode ? "bg-slate-800 border-slate-600 text-white" : ""}`}
+                            >
+                              <SelectValue placeholder="Seleccione el tipo" />
+                            </SelectTrigger>
+                            <SelectContent className={darkMode ? "bg-slate-800 border-slate-700" : ""}>
+                              <SelectItem value="queja" className={darkMode ? "text-white hover:bg-slate-700" : ""}>
+                                Queja
+                              </SelectItem>
+                              <SelectItem value="reclamo" className={darkMode ? "text-white hover:bg-slate-700" : ""}>
+                                Reclamo
+                              </SelectItem>
+                              <SelectItem
+                                value="sugerencia"
+                                className={darkMode ? "text-white hover:bg-slate-700" : ""}
+                              >
+                                Sugerencia
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {errors.tipo_reclamo && <p className="mt-1 text-xs text-red-500">{errors.tipo_reclamo}</p>}
                         </div>
-                      ))}
+                        <div>
+                          <Label htmlFor="asunto">Asunto *</Label>
+                          <Input
+                            id="asunto"
+                            value={formData.asunto}
+                            onChange={(e) => handleInputChange("asunto", e.target.value)}
+                            placeholder="Asunto del reclamo"
+                            className={`mt-1 ${darkMode ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : ""}`}
+                          />
+                          {errors.asunto && <p className="mt-1 text-xs text-red-500">{errors.asunto}</p>}
+                        </div>
+                      </div>
+                      <div>
+                        <Label htmlFor="descripcion">Descripción *</Label>
+                        <Textarea
+                          id="descripcion"
+                          value={formData.descripcion}
+                          onChange={(e) => handleInputChange("descripcion", e.target.value)}
+                          placeholder="Describa detalladamente su reclamo..."
+                          rows={5}
+                          className={`mt-1 ${darkMode ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : ""}`}
+                        />
+                        {errors.descripcion && <p className="mt-1 text-xs text-red-500">{errors.descripcion}</p>}
+                      </div>
                     </div>
                   </div>
 
-                  <div className="mb-4">
-                    <Label>Documentos Adicionales</Label>
-                    <Input type="file" multiple onChange={handleDocumentChange} />
-                    <ul className="mt-2 list-unstyled">
-                      {documents.map((doc, idx) => (
-                        <li key={idx} className="d-flex align-items-center mb-1">
-                          <span className="me-2">{doc.name}</span>
-                          <button
-                            type="button"
-                            onClick={() => removeDocument(idx)}
-                            className="btn-close"
-                            aria-label="Eliminar"
-                          ></button>
-                        </li>
-                      ))}
-                    </ul>
+                  {/* Attachments Section */}
+                  <div>
+                    <h4
+                      className={`text-sm font-semibold uppercase tracking-wider mb-4 ${
+                        darkMode ? "text-slate-400" : "text-slate-500"
+                      }`}
+                    >
+                      Archivos Adjuntos
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Images Upload */}
+                      <div>
+                        <Label className={darkMode ? "text-slate-300" : ""}>Imágenes</Label>
+                        <div
+                          className={`mt-1 border-2 border-dashed rounded-xl p-4 text-center transition-colors ${
+                            darkMode
+                              ? "border-slate-600 hover:border-slate-500 bg-slate-800/50"
+                              : "border-slate-300 hover:border-blue-400 bg-slate-50"
+                          }`}
+                        >
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={handleImageChange}
+                            className="hidden"
+                            id="images-upload"
+                          />
+                          <label htmlFor="images-upload" className="cursor-pointer">
+                            <Icons.Upload
+                              className={`w-8 h-8 mx-auto mb-2 ${darkMode ? "text-slate-500" : "text-slate-400"}`}
+                            />
+                            <p className={`text-sm ${darkMode ? "text-slate-400" : "text-slate-500"}`}>
+                              Click para subir imágenes
+                            </p>
+                          </label>
+                        </div>
+                        {imagePreviews.length > 0 && (
+                          <div className="mt-3 flex flex-wrap gap-3">
+                            {imagePreviews.map((preview, idx) => (
+                              <div key={idx} className="relative group">
+                                <img
+                                  src={preview || "/placeholder.svg"}
+                                  alt={`Preview ${idx + 1}`}
+                                  className={`w-24 h-24 object-cover rounded-lg border ${darkMode ? "border-slate-600" : "border-slate-200"}`}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => removeImage(idx)}
+                                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <Icons.X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      {/* Documents Upload */}
+                      <div>
+                        <Label className={darkMode ? "text-slate-300" : ""}>Documentos</Label>
+                        <div
+                          className={`mt-1 border-2 border-dashed rounded-xl p-4 text-center transition-colors ${
+                            darkMode
+                              ? "border-slate-600 hover:border-slate-500 bg-slate-800/50"
+                              : "border-slate-300 hover:border-blue-400 bg-slate-50"
+                          }`}
+                        >
+                          <input
+                            type="file"
+                            accept=".pdf,.doc,.docx"
+                            multiple
+                            onChange={handleDocumentChange}
+                            className="hidden"
+                            id="documents-upload"
+                          />
+                          <label htmlFor="documents-upload" className="cursor-pointer">
+                            <Icons.FileText
+                              className={`w-8 h-8 mx-auto mb-2 ${darkMode ? "text-slate-500" : "text-slate-400"}`}
+                            />
+                            <p className={`text-sm ${darkMode ? "text-slate-400" : "text-slate-500"}`}>
+                              Click para subir documentos
+                            </p>
+                          </label>
+                        </div>
+                        {documents.length > 0 && (
+                          <div className="mt-3 space-y-2">
+                            {documents.map((doc, idx) => (
+                              <div
+                                key={idx}
+                                className={`flex items-center justify-between p-2 rounded-lg ${
+                                  darkMode ? "bg-slate-800" : "bg-slate-100"
+                                }`}
+                              >
+                                <span className={`text-sm truncate ${darkMode ? "text-slate-300" : "text-slate-700"}`}>
+                                  {doc.name}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => removeDocument(idx)}
+                                  className="text-red-500 hover:text-red-700"
+                                >
+                                  <Icons.X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
-
-                  {errors.general && (
-                   <div className="alert alert-danger mb-4" role="alert">
-                      {errors.general}
-                    </div>
-                  )}
-
-                  <div className="d-grid">
+                  {/* Submit Button */}
+                  <div className="pt-4">
                     <Button
                       type="submit"
                       disabled={loading || !selectedSucursal || !selectedEjecutivo}
-                      variant="primary"
-                      size="lg"
+                      className={`w-full py-3 text-base font-semibold rounded-xl transition-all duration-200 ${
+                        darkMode
+                          ? "bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 disabled:from-slate-700 disabled:to-slate-700"
+                          : "bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400"
+                      }`}
                     >
                       {loading ? (
-                        <>
-                          <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                        <span className="flex items-center justify-center gap-2">
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                           Enviando...
-                        </>
+                        </span>
                       ) : (
-                        <>
-                          <i className="bi bi-send me-2"></i>
-                          Enviar Reclamo
-                        </>
+                        <span className="flex items-center justify-center gap-2">
+                          <Icons.Send className="w-5 h-5" />
+                          Enviar Reclamación
+                        </span>
                       )}
                     </Button>
-                    {(!selectedSucursal || !selectedEjecutivo) && (
-                      <small className="text-muted text-center mt-2">
-                        * Seleccione una sucursal y un ejecutivo para continuar
-                      </small>
-                    )}
                   </div>
                 </form>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
 
-          {/* Panel de estadísticas */}
-          <div className="col-lg-4">
-            <div className="row g-3">
-              <div className="col-12">
-                <Card className="fade-in">
-                  <CardContent className="p-4">
-                    <div className="d-flex align-items-center mb-4">
-                      <div className="icon-circle icon-circle-secondary me-3">
-                        <i className="bi bi-graph-up"></i>
-                      </div>
-                      <div>
-                        <h3 className="h5 mb-1 fw-bold">Estadísticas</h3>
-                        <p className="text-muted mb-0 small">Estado de reclamos</p>
-                      </div>
-                    </div>
-
-                    <div className="row row-cols-2 g-3 text-center justify-content-center">
-                      <div className="col-6">
-                         <div className="border border-danger-subtle rounded bg-danger-subtle p-3">
-                          <div className="fs-4 fw-bold text-danger-emphasis">{estadisticas.total}</div>
-                          <div className="text-danger-emphasis">Total</div>
-                        </div>
-                      </div>
-                      <div className="col-6">
-                       <div className="border border-success-subtle rounded bg-success-subtle p-3">
-                          <div className="fs-4 fw-bold text-success-emphasis">{estadisticas.resueltos}</div>
-                          <div className="text-success-emphasis">Resueltos</div>
-                        </div>
-                      </div>
-                      <div className="col-6">
-                       <div className="border border-warning-subtle rounded bg-warning-subtle p-3">
-                          <div className="fs-4 fw-bold text-warning-emphasis">{estadisticas.pendientes}</div>
-                          <div className="text-warning-emphasis">Pendientes</div>
-                        </div>
-                      </div>
-                      <div className="col-6">
-                         <div className="border border-primary-subtle rounded bg-primary-subtle p-3">
-                          <div className="fs-4 fw-bold text-primary-emphasis">{estadisticas.en_proceso}</div>
-                          <div className="text-primary-emphasis">En Proceso</div>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Summary Card */}
+            <div
+              className={`rounded-2xl border shadow-sm overflow-hidden ${
+                darkMode ? "bg-slate-900/80 border-slate-700/50 backdrop-blur-sm" : "bg-white border-slate-200"
+              }`}
+            >
+              <div className={`px-6 py-4 border-b ${darkMode ? "border-slate-700/50" : "border-slate-100"}`}>
+                <h3
+                  className={`text-sm font-semibold uppercase tracking-wider flex items-center gap-2 ${
+                    darkMode ? "text-slate-400" : "text-slate-500"
+                  }`}
+                >
+                  <Icons.FileText className={`w-5 h-5 ${darkMode ? "text-blue-400" : "text-blue-600"}`} />
+                  Resumen
+                </h3>
               </div>
-
-              <div className="col-12">
-                <Card className="fade-in">
-                  <CardContent className="p-4">
-                    <h4 className="h6 fw-bold mb-3 d-flex align-items-center">
-                      <i className="bi bi-tv me-2 text-primary"></i>
-                      Tiempo de Respuesta
-                    </h4>
-                    <div className="progress mb-3">
-                      <div
-                        className="progress-bar"
-                        role="progressbar"
-                        style={{ width: "75%" }}
-                        aria-valuenow={75}
-                        aria-valuemin={0}
-                        aria-valuemax={100}
-                      ></div>
-                    </div>
-                    <p className="small text-muted mb-0">
-                      <strong>Promedio:</strong> {estadisticas.tiempo_promedio}
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Información del ejecutivo seleccionado */}
-              {selectedEjecutivo && (
-                <div className="col-12">
-                  <Card className="fade-in">
-                    <CardContent className="p-4">
-                      <h4 className="h6 fw-bold mb-3 d-flex align-items-center">
-                        <i className="bi bi-person-check me-2 text-success"></i>
-                        Ejecutivo Seleccionado
-                      </h4>
-                      <div className="text-center">
-                        <img
-                          src={selectedEjecutivo.image_url || "/placeholder.svg"}
-                          alt={selectedEjecutivo.full_name}
-                          className="rounded-circle border border-3 mb-2"
-                          style={{
-                            width: "60px",
-                            height: "60px",
-                            objectFit: "cover",
-                            borderColor: selectedSucursal?.color || "#e2e8f0",
-                          }}
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement
-                            target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedEjecutivo.full_name)}&background=random&color=fff&size=60`
-                          }}
-                        />
-                        <h6 className="fw-bold mb-1">{selectedEjecutivo.full_name}</h6>
-                        {/* <p className="text-muted small mb-0">
-                          {selectedEjecutivo.doc_type}: {selectedEjecutivo.doc_number}
-                        </p> */}
-                      </div>
-                    </CardContent>
-                  </Card>
+              <div className="p-6 space-y-4">
+                <div>
+                  <p
+                    className={`text-xs font-medium uppercase tracking-wider ${darkMode ? "text-slate-500" : "text-slate-400"}`}
+                  >
+                    Sucursal
+                  </p>
+                  {selectedSucursal ? (
+                    <Badge className="mt-1 text-white" style={{ backgroundColor: selectedSucursal.color }}>
+                      {selectedSucursal.name}
+                    </Badge>
+                  ) : (
+                    <p className={`text-sm ${darkMode ? "text-slate-500" : "text-slate-400"}`}>No seleccionada</p>
+                  )}
                 </div>
-              )}
+                <div>
+                  <p
+                    className={`text-xs font-medium uppercase tracking-wider ${darkMode ? "text-slate-500" : "text-slate-400"}`}
+                  >
+                    Ejecutivo
+                  </p>
+                  {selectedEjecutivo ? (
+                    <p className={`text-sm font-medium mt-1 ${darkMode ? "text-white" : "text-slate-900"}`}>
+                      {selectedEjecutivo.name} {selectedEjecutivo.lastname}
+                    </p>
+                  ) : (
+                    <p className={`text-sm ${darkMode ? "text-slate-500" : "text-slate-400"}`}>No seleccionado</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Tips Card */}
+            <div
+              className={`rounded-2xl border shadow-sm overflow-hidden ${
+                darkMode ? "bg-slate-900/80 border-slate-700/50 backdrop-blur-sm" : "bg-white border-slate-200"
+              }`}
+            >
+              <div className={`px-6 py-4 border-b ${darkMode ? "border-slate-700/50" : "border-slate-100"}`}>
+                <h3
+                  className={`text-sm font-semibold uppercase tracking-wider flex items-center gap-2 ${
+                    darkMode ? "text-slate-400" : "text-slate-500"
+                  }`}
+                >
+                  <Icons.Lightbulb className={`w-5 h-5 ${darkMode ? "text-yellow-400" : "text-yellow-500"}`} />
+                  Tips
+                </h3>
+              </div>
+              <div className="p-6">
+                <ul className={`space-y-3 text-sm ${darkMode ? "text-slate-400" : "text-slate-600"}`}>
+                  <li className="flex items-start gap-2">
+                    <Icons.Check className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+                    <span>Describe el problema con fechas y evidencias.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Icons.Check className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+                    <span>Sube imágenes o documentos claros.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Icons.Check className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+                    <span>Selecciona sucursal y ejecutivo antes de enviar.</span>
+                  </li>
+                </ul>
+                <div className={`mt-4 pt-4 border-t ${darkMode ? "border-slate-700" : "border-slate-100"}`}>
+                  <div className="flex items-center gap-2">
+                    <Icons.Clock className={`w-4 h-4 ${darkMode ? "text-slate-500" : "text-slate-400"}`} />
+                    <span className={`text-xs ${darkMode ? "text-slate-500" : "text-slate-500"}`}>
+                      Respuesta en 24-48h
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Lista de Reclamaciones */}
-        <div className="row">
-          <div className="col-12">
-            <div className="mb-4">
-              <h2 className="h3 fw-bold text-body mb-2">Reclamaciones Registradas</h2>
-              <p className="text-muted">Historial de reclamos y su estado actual</p>
+        {/* Claims Section */}
+        {userData && (reclamaciones.length > 0 || searchTerm || filtroEstado) && (
+          <section className="mt-12">
+            <div className="mb-6">
+              <h3 className={`text-2xl font-bold ${darkMode ? "text-white" : "text-slate-900"}`}>
+                <Icons.FileText
+                  className={`inline-block w-5 h-5 mr-2 ${darkMode ? "text-blue-400" : "text-blue-600"}`}
+                />
+                Listado de Reclamaciones
+              </h3>
+              <p className={`text-sm ${darkMode ? "text-slate-400" : "text-slate-500"}`}>
+                Historial de reclamos y su estado actual
+              </p>
             </div>
 
-            {/* Filtros */}
-            <Card className="mb-4">
-              <CardContent className="p-3">
-                <div className="row g-3 align-items-end">
-                  <div className="col-md-8">
-                    <div className="position-relative">
-                      <i className="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
-                      <Input
-                        placeholder="Buscar por número, nombre o asunto..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="ps-5"
-                      />
-                    </div>
-                  </div>
-                  <div className="col-md-4">
-                    <Select value={filtroEstado} onValueChange={setFiltroEstado}>
-                      <SelectTrigger>
-                        <i className="bi bi-funnel me-2"></i>
-                        <SelectValue placeholder="Todos los estados" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Todos los estados</SelectItem>
-                        <SelectItem value="pendiente">Pendiente</SelectItem>
-                        <SelectItem value="en_proceso">En Proceso</SelectItem>
-                        <SelectItem value="resuelto">Resuelto</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+            {/* Filters */}
+            <div
+              className={`rounded-xl shadow-sm border p-4 mb-6 transition-colors duration-300 ${
+                darkMode ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"
+              }`}
+            >
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-1 relative">
+                  <Icons.Search
+                    className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${darkMode ? "text-slate-400" : "text-slate-400"}`}
+                  />
+                  <Input
+                    placeholder="Buscar por numero, nombre o asunto..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className={`pl-10 ${darkMode ? "bg-slate-800 border-slate-700 text-slate-300" : ""}`}
+                  />
                 </div>
-              </CardContent>
-            </Card>
+                <div className="sm:w-48">
+                  <Select value={filtroEstado} onValueChange={setFiltroEstado}>
+                    <SelectTrigger className={darkMode ? "bg-slate-800 border-slate-700 text-slate-300" : ""}>
+                      <SelectValue placeholder="Filtrar estado" />
+                    </SelectTrigger>
+                    <SelectContent className={darkMode ? "bg-slate-800 border-slate-700 text-slate-300" : ""}>
+                      <SelectItem value="all">Todos los estados</SelectItem>
+                      <SelectItem value="pendiente">Pendiente</SelectItem>
+                      <SelectItem value="en_proceso">En Proceso</SelectItem>
+                      <SelectItem value="resuelto">Resuelto</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
 
-            {/* Lista de reclamaciones */}
+            {/* Claims Grid */}
             {loadingReclamaciones ? (
-              <div className="row g-3">
+              <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="col-12">
-                    <Card className="pulse">
-                      <CardContent className="p-4">
-                        <div className="d-flex justify-content-between align-items-start">
-                          <div className="flex-grow-1">
-                            <div className="bg-body-secondary rounded mb-2" style={{ height: "20px", width: "25%" }}></div>
-                            <div className="bg-body-secondary rounded mb-2" style={{ height: "24px", width: "50%" }}></div>
-                            <div className="bg-body-secondary rounded" style={{ height: "16px", width: "75%" }}></div>
-                          </div>
-                        <div className="bg-body-secondary rounded" style={{ height: "32px", width: "80px" }}></div>                        </div>
-                      </CardContent>
-                    </Card>
+                  <div
+                    key={i}
+                    className={`rounded-xl shadow-sm border p-5 transition-colors duration-300 ${
+                      darkMode ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"
+                    }`}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1 space-y-3">
+                        <div
+                          className={`h-5 w-1/4 rounded animate-pulse ${darkMode ? "bg-slate-700" : "bg-slate-200"}`}
+                        />
+                        <div
+                          className={`h-6 w-1/2 rounded animate-pulse ${darkMode ? "bg-slate-700" : "bg-slate-200"}`}
+                        />
+                        <div
+                          className={`h-4 w-3/4 rounded animate-pulse ${darkMode ? "bg-slate-700" : "bg-slate-200"}`}
+                        />
+                      </div>
+                      <div className={`h-8 w-20 rounded animate-pulse ${darkMode ? "bg-slate-700" : "bg-slate-200"}`} />
+                    </div>
                   </div>
                 ))}
               </div>
             ) : filteredReclamaciones.length === 0 ? (
-              <Card>
-                <CardContent className="p-5 text-center">
-                  <i className="bi bi-tv text-muted" style={{ fontSize: "4rem" }}></i>
-                    <h3 className="h5 fw-bold text-body mt-3 mb-2">No se encontraron reclamaciones</h3>                  <p className="text-muted">
-                    {searchTerm || filtroEstado
-                      ? "Intenta ajustar los filtros de búsqueda"
-                      : "Aún no hay reclamaciones registradas"}
-                  </p>
-                </CardContent>
-              </Card>
+              <div
+                className={`rounded-xl shadow-sm border p-12 text-center transition-colors duration-300 ${
+                  darkMode ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"
+                }`}
+              >
+                <Icons.FileText
+                  className={`w-5 h-5 mx-auto mb-4 ${darkMode ? "text-slate-400" : "text-slate-300"}`}
+                  style={{ minWidth: "20px" }}
+                />
+                <h4 className={`text-lg font-semibold mb-2 ${darkMode ? "text-white" : "text-slate-900"}`}>
+                  No se encontraron reclamaciones
+                </h4>
+                <p className={darkMode ? "text-slate-400" : "text-slate-500"}>
+                  {searchTerm || filtroEstado
+                    ? "Intenta ajustar los filtros de busqueda"
+                    : "Aun no hay reclamaciones registradas"}
+                </p>
+              </div>
             ) : (
-              <div className="row g-3">
+              <div className="space-y-4">
                 {filteredReclamaciones.map((reclamacion) => (
-                  <div key={reclamacion.id} className="col-12">
-                    <Card className="cursor-pointer">
-                      <CardContent className="p-4">
-                        <div className="d-flex justify-content-between align-items-start">
-                          <div className="flex-grow-1">
-                            <div className="d-flex align-items-center gap-3 mb-3">
-                              <span className="badge bg-primary bg-opacity-10 text-primary border border-primary font-monospace">
-                                {reclamacion.numero_reclamacion || `#${reclamacion.id}`}
-                              </span>
-                              <Badge variant={getEstadoBadge(reclamacion.estado)}>
-                                {getEstadoTexto(reclamacion.estado)}
-                              </Badge>
-                            </div>
-                            <h3 className="h5 fw-bold text-body mb-2">{reclamacion.asunto}</h3>                            <p className="text-muted mb-2">
-                              <strong>{reclamacion.nombre_completo}</strong> • {reclamacion.branch?.name} •{" "}
-                              <span className="text-capitalize">{reclamacion.tipo_reclamo}</span>
-                            </p>
-                            <div className="d-flex align-items-center mb-2">
-                              <img
-                                src={`http://almacen.fastnetperu.com.pe/api/image_person/${reclamacion.ejecutive?.relative_id}/full`}
-                                alt={reclamacion.ejecutive?.name}
-                                className="rounded-circle me-2"
-                                style={{ width: "32px", height: "32px", objectFit: "cover" }}
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement
-                                  target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(reclamacion.ejecutive?.name + ' ' + reclamacion.ejecutive?.lastname)}&background=random&color=fff&size=32`
-                                }}
-                              />
-                              <small className="text-muted">
-                                Atendido por {reclamacion.ejecutive?.name} {reclamacion.ejecutive?.lastname}
-                              </small>
-                            </div>
-                            <p className="text-muted small text-truncate-2 mb-3">{reclamacion.descripcion}</p>
-                            <p className="text-muted small mb-0">
-                              <i className="bi bi-calendar3 me-1"></i>
-                              Creado:{" "}
-                               {new Date(
-                                reclamacion.created_at || reclamacion.fecha_creacion || ""
-                              ).toLocaleDateString("es-ES", {
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </p>
-                          </div>
-                           {reclamacion.respuesta && (
-                              <div className="d-flex mt-3">
-                                <img
-                                  src={`http://almacen.fastnetperu.com.pe/api/image_person/${reclamacion.ejecutive?.relative_id}/thumb`}
-                                  alt={reclamacion.ejecutive?.name}
-                                  className="rounded-circle me-2"
-                                  style={{ width: "32px", height: "32px", objectFit: "cover" }}
-                                  onError={(e) => {
-                                    const target = e.target as HTMLImageElement
-                                    target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                                      reclamacion.ejecutive?.name + " " + reclamacion.ejecutive?.lastname
-                                    )}&background=random&color=fff&size=32`
-                                  }}
-                                />
-                                <div>
-                                    <div className="bg-body-secondary text-body rounded-3 p-2 shadow-sm">
-                                    <p className="fw-bold small mb-1">
-                                      {reclamacion.ejecutive?.name} {reclamacion.ejecutive?.lastname}
-                                    </p>
-                                    <p className="mb-0 small">{reclamacion.respuesta}</p>
-                                  </div>
-                                  {reclamacion.fecha_respuesta && (
-                                    <small className="text-muted">
-                                      {new Date(reclamacion.fecha_respuesta).toLocaleDateString("es-ES", {
-                                        year: "numeric",
-                                        month: "long",
-                                        day: "numeric",
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                      })}
-                                    </small>
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                          <div className="ms-3">
-                             <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setSelectedReclamacion(reclamacion)}
-                            >
-                              {userData ? (
-                                <>
-                                  <i className="bi bi-pencil me-1"></i>
-                                  Gestionar
-                                </>
-                              ) : (
-                                <>
-                                  <i className="bi bi-eye me-1"></i>
-                                  Ver detalle
-                                </>
-                              )}
-                            </Button>
-                          </div>
+                  <div
+                    key={reclamacion.id}
+                    className={`rounded-xl shadow-sm border p-5 hover:shadow-md transition-all duration-200 ${
+                      darkMode
+                        ? "bg-slate-900 border-slate-700 hover:border-slate-600"
+                        : "bg-white border-slate-200 hover:border-blue-300"
+                    }`}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                      <div className="flex-1">
+                        {/* Badges */}
+                        <div className="flex flex-wrap items-center gap-2 mb-3">
+                          <span
+                            className={`inline-flex px-2 py-0.5 text-xs font-semibold font-mono rounded ${darkMode ? "bg-blue-500/20 text-blue-400" : "bg-blue-100 text-blue-600"}`}
+                          >
+                            {reclamacion.numero_reclamacion || `#${reclamacion.id}`}
+                          </span>
+                          <Badge variant={getEstadoBadge(reclamacion.estado)}>
+                            {getEstadoTexto(reclamacion.estado)}
+                          </Badge>
                         </div>
-                      </CardContent>
-                    </Card>
+
+                        {/* Title */}
+                        <h4 className={`text-lg font-semibold mb-2 ${darkMode ? "text-white" : "text-slate-900"}`}>
+                          {reclamacion.asunto}
+                        </h4>
+
+                        {/* Meta */}
+                        <p className={`text-sm mb-3 ${darkMode ? "text-slate-400" : "text-slate-600"}`}>
+                          <strong>{reclamacion.nombre_completo}</strong> • {reclamacion.branch?.name} •{" "}
+                          <span className="capitalize">{reclamacion.tipo_reclamo}</span>
+                        </p>
+
+                        {/* Executive */}
+                        <div className="flex items-center gap-2 mb-3">
+                          <img
+                            src={`http://almacen.fastnetperu.com.pe/api/image_person/${reclamacion.ejecutive?.relative_id}/full`}
+                            alt={reclamacion.ejecutive?.name}
+                            className={`w-7 h-7 rounded-full object-cover border ${darkMode ? "border-slate-600" : "border-slate-200"}`}
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement
+                              target.onerror = null // Prevent infinite loop
+                              target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(reclamacion.ejecutive?.name + " " + reclamacion.ejecutive?.lastname)}&background=random&color=fff&size=28`
+                            }}
+                          />
+                          <span className={`text-sm ${darkMode ? "text-slate-400" : "text-slate-500"}`}>
+                            Atendido por {reclamacion.ejecutive?.name} {reclamacion.ejecutive?.lastname}
+                          </span>
+                        </div>
+
+                        {/* Description */}
+                        <p className={`text-sm line-clamp-2 mb-2 ${darkMode ? "text-slate-400" : "text-slate-500"}`}>
+                          {reclamacion.descripcion}
+                        </p>
+
+                        {/* Date */}
+                        <p
+                          className={`text-xs flex items-center gap-1 ${darkMode ? "text-slate-500" : "text-slate-400"}`}
+                        >
+                          <Icons.Calendar className="w-3.5 h-3.5" />
+                          {new Date(reclamacion.created_at || reclamacion.fecha_creacion || "").toLocaleDateString(
+                            "es-ES",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            },
+                          )}
+                        </p>
+                      </div>
+
+                      {/* Action Button */}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelectedReclamacion(reclamacion)}
+                        className={darkMode ? "border-slate-600 text-slate-300 hover:bg-slate-800" : ""}
+                      >
+                        <Icons.Eye className="w-4 h-4 mr-1" />
+                        {userData ? "Gestionar" : "Ver detalle"}
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
             )}
-             {totalPages > 1 && (
-              <div className="d-flex justify-content-center mt-4">
-                <ReactPaginate
-                  previousLabel="Anterior"
-                  nextLabel="Siguiente"
-                  breakLabel="..."
-                  breakClassName="page-item"
-                  breakLinkClassName="page-link"
-                  pageCount={totalPages}
-                  marginPagesDisplayed={2}
-                  pageRangeDisplayed={3}
-                  onPageChange={(e) => setCurrentPage(e.selected + 1)}
-                  containerClassName="pagination"
-                  pageClassName="page-item"
-                  pageLinkClassName="page-link"
-                  previousClassName="page-item"
-                  previousLinkClassName="page-link"
-                  nextClassName="page-item"
-                  nextLinkClassName="page-link"
-                  activeClassName="active"
-                />
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-8">
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className={darkMode ? "border-slate-600 text-slate-300 hover:bg-slate-800" : ""}
+                >
+                  Anterior
+                </Button>
+                <span className={`px-4 py-2 text-sm ${darkMode ? "text-slate-400" : "text-slate-500"}`}>
+                  Pagina {currentPage} de {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className={darkMode ? "border-slate-600 text-slate-300 hover:bg-slate-800" : ""}
+                >
+                  Siguiente
+                </Button>
               </div>
             )}
-          </div>
-        </div>
-      </div>
-     {selectedReclamacion && (
-        <Modal
-          show={true}
-          onClose={() => setSelectedReclamacion(null)}
-          title="Detalle de Reclamación"
-          size="lg"
-        >
+          </section>
+        )}
+      </main>
+
+      {/* Modal */}
+      {selectedReclamacion && (
+        <Modal show={true} onClose={() => setSelectedReclamacion(null)} title="Detalle de Reclamacion" size="lg">
           {userData ? (
             <GestionReclamacionModal
               reclamacion={selectedReclamacion}
@@ -1101,6 +1356,10 @@ export default function LibroReclamaciones() {
           )}
         </Modal>
       )}
+
+      <ChatbotWidget webhookUrl="https://paneln8n.fastnetperu.com.pe/webhook/reclamos" darkMode={darkMode} />
+      {/* Add the Footer component */}
+      <Footer darkMode={darkMode} />
     </div>
   )
 }
