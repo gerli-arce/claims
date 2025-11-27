@@ -31,7 +31,7 @@ const Icons = {
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth={2}
-        d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+        d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
       />
     </svg>
   ),
@@ -167,9 +167,61 @@ const Icons = {
       />
     </svg>
   ),
+  Building: ({ className = "w-4 h-4" }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+      />
+    </svg>
+  ),
+  Activity: ({ className = "w-4 h-4" }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M22 12h-4l-3 9L9 3l-3 9H2" />
+    </svg>
+  ),
+  Bell: ({ className = "w-4 h-4" }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+      />
+    </svg>
+  ),
+  Shield: ({ className = "w-4 h-4" }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+      />
+    </svg>
+  ),
+  Phone: ({ className = "w-4 h-4" }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+      />
+    </svg>
+  ),
+  ArrowRight: ({ className = "w-4 h-4" }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+    </svg>
+  ),
 }
 
 export default function LibroReclamaciones() {
+  const [formStep, setFormStep] = useState(1)
+
   const [formData, setFormData] = useState<FormData>({
     nombre_completo: "",
     correo_electronico: "",
@@ -267,6 +319,19 @@ export default function LibroReclamaciones() {
       }
     }
   }, [sucursales])
+
+  useEffect(() => {
+    const hasPersonalInfo = formData.nombre_completo && formData.correo_electronico && formData.telefono
+    const hasClaimDetails = formData.tipo_reclamo && formData.asunto && formData.descripcion
+
+    if (hasClaimDetails) {
+      setFormStep(3)
+    } else if (hasPersonalInfo) {
+      setFormStep(2)
+    } else {
+      setFormStep(1)
+    }
+  }, [formData])
 
   const fetchEjecutivos = async (sucursalId: number) => {
     setLoadingEjecutivos(true)
@@ -404,13 +469,14 @@ export default function LibroReclamaciones() {
         setImages([])
         setImagePreviews([])
         setDocuments([])
+        setFormStep(1)
         fetchEstadisticas()
         fetchReclamaciones()
       } else {
         Swal.fire({
           icon: "error",
           title: "Error al enviar reclamo",
-          text: data.message || "No se pudo enviar la reclamación",
+          text: data.message || "No se pudo enviar la reclamacion",
         })
         setErrors(data.errors || {})
       }
@@ -419,9 +485,9 @@ export default function LibroReclamaciones() {
       Swal.fire({
         icon: "error",
         title: "Error al enviar reclamo",
-        text: "Error al enviar la reclamación",
+        text: "Error al enviar la reclamacion",
       })
-      setErrors({ general: "Error al enviar la reclamación" })
+      setErrors({ general: "Error al enviar la reclamacion" })
     } finally {
       setLoading(false)
     }
@@ -470,16 +536,37 @@ export default function LibroReclamaciones() {
       ejecutivoNombre.includes(term) ||
       reclamacion.asunto?.toLowerCase().includes(term)
     const matchesEstado =
-      filtroEstado === "" || filtroEstado === "all" || reclamacion.estado.toLowerCase() === filtroEstado.toLowerCase()
+      filtroEstado === "" || filtroEstado === "all" || reclamacion.estado?.toLowerCase() === filtroEstado.toLowerCase()
     return matchesSearch && matchesEstado
   })
 
+  const accentColor = selectedSucursal?.color || "#3b82f6"
+
+  const scrollToForm = () => {
+    document.getElementById("form-section")?.scrollIntoView({ behavior: "smooth" })
+  }
+
   return (
     <div className={`min-h-screen transition-colors duration-300 ${darkMode ? "bg-slate-950" : "bg-slate-50"}`}>
+      {darkMode && (
+        <div className="fixed inset-0 pointer-events-none overflow-hidden">
+          <div
+            className="absolute top-0 left-1/4 w-96 h-96 rounded-full opacity-10 blur-3xl"
+            style={{ backgroundColor: accentColor }}
+          />
+          <div
+            className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full opacity-5 blur-3xl"
+            style={{ backgroundColor: accentColor }}
+          />
+        </div>
+      )}
+
       {/* Header */}
       <header
         className={`sticky top-0 z-50 border-b shadow-sm transition-colors duration-300 ${
-          darkMode ? "bg-slate-900/95 backdrop-blur-md border-slate-700/50" : "bg-white border-slate-200"
+          darkMode
+            ? "bg-slate-900/95 backdrop-blur-md border-slate-700/50"
+            : "bg-white/95 backdrop-blur-md border-slate-200"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -493,9 +580,11 @@ export default function LibroReclamaciones() {
               />
               <div className="text-center lg:text-left">
                 <span
-                  className={`inline-flex items-center px-2.5 py-0.5 text-xs font-semibold rounded-full mb-1 ${
-                    darkMode ? "bg-blue-500/20 text-blue-400" : "bg-blue-50 text-blue-600"
-                  }`}
+                  className="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold rounded-full mb-1"
+                  style={{
+                    backgroundColor: darkMode ? `${accentColor}30` : `${accentColor}15`,
+                    color: accentColor,
+                  }}
                 >
                   Libro de Reclamaciones
                 </span>
@@ -544,31 +633,81 @@ export default function LibroReclamaciones() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Hero Section */}
-        <section className="text-center mb-10">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+        <section className="text-center mb-12 py-8">
           <h2
-            className={`text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight mb-3 ${
+            className={`text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight mb-6 ${
               darkMode ? "text-white" : "text-slate-900"
             }`}
           >
             Libro de Reclamaciones
-            {selectedSucursal && (
-              <span
-                className="inline-flex items-center ml-3 px-3 py-1 text-base font-semibold text-white rounded-full"
-                style={{ backgroundColor: selectedSucursal.color }}
-              >
-                {selectedSucursal.name}
-              </span>
-            )}
           </h2>
-          <p className={`text-base max-w-2xl mx-auto ${darkMode ? "text-slate-400" : "text-slate-600"}`}>
-            Registra tu reclamo sobre nuestros servicios. Respondemos con prioridad y seguimiento en linea.
+          <p
+            className={`text-base sm:text-lg max-w-3xl mx-auto mb-8 leading-relaxed ${darkMode ? "text-slate-400" : "text-slate-600"}`}
+          >
+            Sistema digital de Libro de Reclamaciones. Multi-sucursal, con seguimiento en línea y atención prioritaria.
           </p>
+
+          {/* CTA Button */}
+          <button
+            onClick={scrollToForm}
+            className="inline-flex items-center gap-2 px-8 py-4 text-lg font-semibold text-white rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl mb-10"
+            style={{
+              backgroundColor: accentColor,
+              boxShadow: darkMode ? `0 10px 40px ${accentColor}40` : `0 10px 30px ${accentColor}30`,
+            }}
+          >
+            Iniciar reclamo
+            <Icons.ArrowRight className="w-5 h-5" />
+          </button>
+
+          {/* Highlights */}
+          <div className="flex flex-wrap justify-center gap-6 lg:gap-10">
+            <div className="flex items-center gap-3">
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center"
+                style={{ backgroundColor: `${accentColor}20` }}
+              >
+                <Icons.Building className="w-5 h-5" style={{ color: accentColor }} />
+              </div>
+              <span className={`text-sm font-medium ${darkMode ? "text-slate-300" : "text-slate-700"}`}>
+                +10 sucursales conectadas
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center"
+                style={{ backgroundColor: `${accentColor}20` }}
+              >
+                <Icons.Activity className="w-5 h-5" style={{ color: accentColor }} />
+              </div>
+              <span className={`text-sm font-medium ${darkMode ? "text-slate-300" : "text-slate-700"}`}>
+                Seguimiento en tiempo real
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center"
+                style={{ backgroundColor: `${accentColor}20` }}
+              >
+                <Icons.Bell className="w-5 h-5" style={{ color: accentColor }} />
+              </div>
+              <span className={`text-sm font-medium ${darkMode ? "text-slate-300" : "text-slate-700"}`}>
+                Notificaciones automáticas
+              </span>
+            </div>
+          </div>
         </section>
 
-        {/* Branch Selection */}
-        <section className="mb-8">
+        <section className="mb-10">
+          <div className="text-center mb-6">
+            <h3 className={`text-xl font-bold mb-2 ${darkMode ? "text-white" : "text-slate-900"}`}>
+              Selecciona la sucursal
+            </h3>
+            <p className={`text-sm ${darkMode ? "text-slate-400" : "text-slate-600"}`}>
+              Elige la oficina donde recibiste el servicio
+            </p>
+          </div>
           <div className="flex flex-wrap justify-center gap-3">
             {sucursales.map((sucursal) => {
               const isActive = selectedSucursal?.id === sucursal.id
@@ -577,18 +716,31 @@ export default function LibroReclamaciones() {
                   key={sucursal.id}
                   onClick={() => handleSucursalSelect(sucursal)}
                   className={`
-                    min-w-[120px] px-5 py-3 rounded-xl text-sm font-semibold uppercase tracking-wider
-                    transition-all duration-200 border-2
+                    relative min-w-[130px] px-5 py-3 rounded-2xl text-sm font-semibold uppercase tracking-wider
+                    transition-all duration-300 border-2
                     ${
                       isActive
                         ? "text-white shadow-lg scale-105"
                         : darkMode
-                          ? "bg-slate-800/50 border-slate-700 text-slate-300 hover:border-slate-500"
-                          : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
+                          ? "bg-slate-800/50 border-slate-700 text-slate-300 hover:border-slate-500 hover:scale-102"
+                          : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:shadow-md"
                     }
                   `}
-                  style={isActive ? { backgroundColor: sucursal.color, borderColor: sucursal.color } : {}}
+                  style={
+                    isActive
+                      ? {
+                          backgroundColor: sucursal.color,
+                          borderColor: sucursal.color,
+                          boxShadow: `0 8px 25px ${sucursal.color}50`,
+                        }
+                      : {}
+                  }
                 >
+                  {isActive && (
+                    <span className="absolute -top-2 -right-2 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-md">
+                      <Icons.Check className="w-3 h-3" style={{ color: sucursal.color }} />
+                    </span>
+                  )}
                   <Icons.MapPin
                     className={`inline-block w-4 h-4 mr-2 ${isActive ? "text-white" : darkMode ? "text-slate-400" : "text-slate-400"}`}
                   />
@@ -599,33 +751,29 @@ export default function LibroReclamaciones() {
           </div>
         </section>
 
-        {/* Branch Info Card */}
         {selectedSucursal && (
-          <section className="mb-8">
+          <section className="mb-10">
             <div
-              className={`rounded-xl border-l-4 shadow-sm p-4 sm:p-6 transition-colors duration-300 ${
-                darkMode ? "bg-slate-900 border-slate-700" : "bg-white"
+              className={`rounded-2xl border-l-4 shadow-lg p-6 transition-all duration-300 ${
+                darkMode ? "bg-slate-900/80 border-slate-700 backdrop-blur-sm" : "bg-white"
               }`}
               style={{ borderLeftColor: selectedSucursal.color }}
             >
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center"
+                    className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner"
                     style={{ backgroundColor: `${selectedSucursal.color}20` }}
                   >
-                    <Icons.MapPin className="w-6 h-6" style={{ color: selectedSucursal.color }} />
+                    <Icons.MapPin className="w-7 h-7" style={{ color: selectedSucursal.color }} />
                   </div>
                   <div>
                     <p
                       className={`text-xs font-semibold uppercase tracking-wider mb-1 ${darkMode ? "text-slate-400" : "text-slate-400"}`}
                     >
-                      Sucursal
+                      Sucursal seleccionada
                     </p>
-                    <h3
-                      className={`text-lg font-bold ${darkMode ? "text-white" : ""}`}
-                      style={{ color: selectedSucursal.color }}
-                    >
+                    <h3 className="text-xl font-bold" style={{ color: selectedSucursal.color }}>
                       {selectedSucursal.name}
                     </h3>
                     <p className={`text-sm ${darkMode ? "text-slate-400" : "text-slate-500"}`}>
@@ -633,107 +781,115 @@ export default function LibroReclamaciones() {
                     </p>
                   </div>
                 </div>
-                <span
-                  className={`inline-flex items-center gap-2 px-3 py-1.5 border rounded-full text-xs font-medium transition-all duration-200 ${
-                    darkMode
-                      ? "bg-slate-800/50 border-slate-700 text-slate-300"
-                      : "bg-slate-50 border-slate-200 text-slate-600"
-                  }`}
-                >
-                  <Icons.Clock className="w-3.5 h-3.5" />
-                  Atencion prioritaria
-                </span>
+                <div className="flex items-center gap-3">
+                  {selectedSucursal.phone && (
+                    <span
+                      className={`inline-flex items-center gap-2 px-3 py-1.5 border rounded-full text-xs font-medium ${
+                        darkMode
+                          ? "bg-slate-800/50 border-slate-700 text-slate-300"
+                          : "bg-slate-50 border-slate-200 text-slate-600"
+                      }`}
+                    >
+                      <Icons.Phone className="w-3.5 h-3.5" />
+                      {selectedSucursal.phone}
+                    </span>
+                  )}
+                  <span
+                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold text-white"
+                    style={{ backgroundColor: selectedSucursal.color }}
+                  >
+                    <Icons.Shield className="w-3.5 h-3.5" />
+                    Atención prioritaria
+                  </span>
+                </div>
               </div>
             </div>
           </section>
         )}
 
-        {/* Executives Grid */}
         {selectedSucursal && (
-          <section className="mb-8">
-            <h3
-              className={`text-lg font-semibold mb-4 flex items-center gap-2 ${darkMode ? "text-white" : "text-slate-900"}`}
-            >
-              <Icons.Users className={`w-5 h-5 ${darkMode ? "text-blue-400" : "text-blue-600"}`} />
-              Ejecutivos de Atencion
-            </h3>
-            <p className={`text-sm mb-6 ${darkMode ? "text-slate-400" : "text-slate-600"}`}>
-              Seleccione el ejecutivo que le atendio
-            </p>
+          <section className="mb-10">
+            <div className="mb-6">
+              <h3
+                className={`text-xl font-bold mb-2 flex items-center gap-2 ${darkMode ? "text-white" : "text-slate-900"}`}
+              >
+                <Icons.Users className="w-6 h-6" style={{ color: accentColor }} />
+                ¿Quién te atendió?
+              </h3>
+              <p className={`text-sm ${darkMode ? "text-slate-400" : "text-slate-600"}`}>
+                Selecciona al ejecutivo que te atendió (opcional)
+              </p>
+            </div>
+
             {loadingEjecutivos ? (
               <div className="flex justify-center py-8">
                 <div
-                  className={`animate-spin rounded-full h-8 w-8 border-b-2 ${darkMode ? "border-blue-400" : "border-blue-600"}`}
+                  className="animate-spin rounded-full h-10 w-10 border-b-2"
+                  style={{ borderColor: accentColor }}
                 ></div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {ejecutivos.map((ejecutivo) => {
                   const isSelected = selectedEjecutivo?.id === ejecutivo.id
-                  const initials = `${ejecutivo.name.charAt(0)}${ejecutivo.lastname?.charAt(0) || ""}`
 
                   return (
                     <button
                       key={ejecutivo.id}
                       onClick={() => handleEjecutivoSelect(ejecutivo)}
                       className={`
-                        flex items-center gap-3 p-3 rounded-xl border-2 transition-all duration-200 text-left
+                        flex flex-col items-center p-4 rounded-2xl border-2 transition-all duration-300 text-center
                         ${
                           isSelected
-                            ? darkMode
-                              ? "border-blue-500 bg-blue-500/10 shadow-lg shadow-blue-500/25"
-                              : "border-blue-500 bg-blue-50 shadow-md shadow-blue-500/10"
+                            ? "shadow-lg scale-105"
                             : darkMode
                               ? "border-slate-700 bg-slate-800/50 hover:border-slate-500 hover:bg-slate-800"
-                              : "border-slate-200 bg-white hover:border-blue-300 hover:shadow-md"
+                              : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md"
                         }
                       `}
+                      style={
+                        isSelected
+                          ? {
+                              borderColor: accentColor,
+                              backgroundColor: darkMode ? `${accentColor}15` : `${accentColor}08`,
+                              boxShadow: `0 8px 25px ${accentColor}30`,
+                            }
+                          : {}
+                      }
                     >
                       {/* Profile Picture Circle */}
-                      <div className="flex-shrink-0">
+                      <div className="relative mb-3">
                         <img
                           src={`https://almacen.fastnetperu.com.pe/api/image_person/${ejecutivo.relative_id}/full`}
                           alt={`${ejecutivo.name} ${ejecutivo.lastname}`}
-                          className={`w-12 h-12 rounded-full object-cover border-2 ${
-                            isSelected ? "border-blue-500" : darkMode ? "border-slate-600" : "border-slate-200"
-                          }`}
+                          className="w-16 h-16 rounded-full object-cover border-3 shadow-md"
+                          style={{ borderColor: isSelected ? accentColor : darkMode ? "#475569" : "#e2e8f0" }}
                           onError={(e) => {
                             const target = e.target as HTMLImageElement
                             target.onerror = null
-                            target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(ejecutivo.name + " " + ejecutivo.lastname)}&background=random&color=fff&size=48`
+                            target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(ejecutivo.name + " " + ejecutivo.lastname)}&background=random&color=fff&size=64`
                           }}
                         />
+                        {isSelected && (
+                          <span
+                            className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-white shadow-md"
+                            style={{ backgroundColor: accentColor }}
+                          >
+                            <Icons.Check className="w-3.5 h-3.5" />
+                          </span>
+                        )}
                       </div>
 
                       {/* Executive Info */}
-                      <div className="flex-1 min-w-0">
-                        <p
-                          className={`text-sm font-bold truncate ${
-                            isSelected
-                              ? darkMode
-                                ? "text-blue-300"
-                                : "text-blue-700"
-                              : darkMode
-                                ? "text-white"
-                                : "text-slate-900"
-                          }`}
-                        >
-                          {ejecutivo.name} {ejecutivo.lastname}
-                        </p>
-                        <p
-                          className={`text-xs truncate ${
-                            isSelected
-                              ? darkMode
-                                ? "text-blue-400/80"
-                                : "text-blue-600/80"
-                              : darkMode
-                                ? "text-slate-400"
-                                : "text-slate-500"
-                          }`}
-                        >
-                          {selectedSucursal.name}
-                        </p>
-                      </div>
+                      <p
+                        className={`text-sm font-bold ${isSelected ? "" : darkMode ? "text-white" : "text-slate-900"}`}
+                        style={isSelected ? { color: accentColor } : {}}
+                      >
+                        {ejecutivo.name}
+                      </p>
+                      <p className={`text-xs ${darkMode ? "text-slate-400" : "text-slate-500"}`}>
+                        {ejecutivo.lastname}
+                      </p>
                     </button>
                   )
                 })}
@@ -743,32 +899,73 @@ export default function LibroReclamaciones() {
         )}
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div id="form-section" className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Form Section */}
           <div className="lg:col-span-2">
             <div
-              className={`rounded-2xl border shadow-sm overflow-hidden ${
+              className={`rounded-2xl border shadow-lg overflow-hidden ${
                 darkMode ? "bg-slate-900/80 border-slate-700/50 backdrop-blur-sm" : "bg-white border-slate-200"
               }`}
             >
-              <div className={`px-6 py-4 border-b ${darkMode ? "border-slate-700/50" : "border-slate-100"}`}>
-                <h3
-                  className={`text-lg font-semibold flex items-center gap-2 ${darkMode ? "text-white" : "text-slate-900"}`}
-                >
-                  <Icons.FileText className={`w-5 h-5 ${darkMode ? "text-blue-400" : "text-blue-600"}`} />
-                  Formulario de reclamo
-                </h3>
+              <div className={`px-6 py-5 border-b ${darkMode ? "border-slate-700/50" : "border-slate-100"}`}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3
+                    className={`text-lg font-bold flex items-center gap-2 ${darkMode ? "text-white" : "text-slate-900"}`}
+                  >
+                    <Icons.FileText className="w-5 h-5" style={{ color: accentColor }} />
+                    Formulario de reclamo
+                  </h3>
+                  <span className={`text-sm font-medium ${darkMode ? "text-slate-400" : "text-slate-500"}`}>
+                    Paso {formStep} de 3
+                  </span>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="flex items-center gap-2">
+                  {[1, 2, 3].map((step) => (
+                    <div key={step} className="flex-1">
+                      <div
+                        className={`h-2 rounded-full transition-all duration-300 ${
+                          step <= formStep ? "" : darkMode ? "bg-slate-700" : "bg-slate-200"
+                        }`}
+                        style={step <= formStep ? { backgroundColor: accentColor } : {}}
+                      />
+                      <p
+                        className={`text-xs mt-1 ${
+                          step <= formStep
+                            ? darkMode
+                              ? "text-slate-300"
+                              : "text-slate-700"
+                            : darkMode
+                              ? "text-slate-500"
+                              : "text-slate-400"
+                        }`}
+                      >
+                        {step === 1 && "Datos personales"}
+                        {step === 2 && "Detalle del reclamo"}
+                        {step === 3 && "Adjuntos y envio"}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
+
               <div className="p-6">
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-8">
                   {/* Personal Info Section */}
                   <div>
                     <h4
-                      className={`text-sm font-semibold uppercase tracking-wider mb-4 ${
-                        darkMode ? "text-slate-300" : "text-slate-500"
+                      className={`text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2 ${
+                        darkMode ? "text-slate-300" : "text-slate-700"
                       }`}
                     >
-                      Información Personal
+                      <span
+                        className="w-6 h-6 rounded-full text-white text-xs flex items-center justify-center"
+                        style={{ backgroundColor: accentColor }}
+                      >
+                        1
+                      </span>
+                      Informacion Personal
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
@@ -778,46 +975,47 @@ export default function LibroReclamaciones() {
                           value={formData.nombre_completo}
                           onChange={(e) => handleInputChange("nombre_completo", e.target.value)}
                           placeholder="Ingrese su nombre completo"
-                          className={`mt-1 ${darkMode ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : ""}`}
+                          className={`mt-1 rounded-xl ${darkMode ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500 focus:border-blue-500" : "focus:border-blue-500"}`}
+                          style={{ "--tw-ring-color": accentColor } as any}
                         />
                         {errors.nombre_completo && (
                           <p className="mt-1 text-xs text-red-500">{errors.nombre_completo}</p>
                         )}
                       </div>
                       <div>
-                        <Label htmlFor="correo_electronico">Correo Electrónico *</Label>
+                        <Label htmlFor="correo_electronico">Correo Electronico *</Label>
                         <Input
                           id="correo_electronico"
                           type="email"
                           value={formData.correo_electronico}
                           onChange={(e) => handleInputChange("correo_electronico", e.target.value)}
                           placeholder="ejemplo@correo.com"
-                          className={`mt-1 ${darkMode ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : ""}`}
+                          className={`mt-1 rounded-xl ${darkMode ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : ""}`}
                         />
                         {errors.correo_electronico && (
                           <p className="mt-1 text-xs text-red-500">{errors.correo_electronico}</p>
                         )}
                       </div>
                       <div>
-                        <Label htmlFor="telefono">Teléfono *</Label>
+                        <Label htmlFor="telefono">Telefono *</Label>
                         <Input
                           id="telefono"
                           type="tel"
                           value={formData.telefono}
                           onChange={(e) => handleInputChange("telefono", e.target.value)}
                           placeholder="999 999 999"
-                          className={`mt-1 ${darkMode ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : ""}`}
+                          className={`mt-1 rounded-xl ${darkMode ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : ""}`}
                         />
                         {errors.telefono && <p className="mt-1 text-xs text-red-500">{errors.telefono}</p>}
                       </div>
                       <div>
-                        <Label htmlFor="zona">Zona / Dirección</Label>
+                        <Label htmlFor="zona">Zona / Direccion</Label>
                         <Input
                           id="zona"
                           value={formData.zona}
                           onChange={(e) => handleInputChange("zona", e.target.value)}
-                          placeholder="Su zona o dirección"
-                          className={`mt-1 ${darkMode ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : ""}`}
+                          placeholder="Su zona o direccion"
+                          className={`mt-1 rounded-xl ${darkMode ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : ""}`}
                         />
                       </div>
                     </div>
@@ -826,10 +1024,16 @@ export default function LibroReclamaciones() {
                   {/* Claim Details Section */}
                   <div>
                     <h4
-                      className={`text-sm font-semibold uppercase tracking-wider mb-4 ${
-                        darkMode ? "text-slate-300" : "text-slate-500"
+                      className={`text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2 ${
+                        darkMode ? "text-slate-300" : "text-slate-700"
                       }`}
                     >
+                      <span
+                        className="w-6 h-6 rounded-full text-white text-xs flex items-center justify-center"
+                        style={{ backgroundColor: accentColor }}
+                      >
+                        2
+                      </span>
                       Detalle del Reclamo
                     </h4>
                     <div className="space-y-4">
@@ -841,7 +1045,7 @@ export default function LibroReclamaciones() {
                             onValueChange={(value) => handleInputChange("tipo_reclamo", value)}
                           >
                             <SelectTrigger
-                              className={`mt-1 ${darkMode ? "bg-slate-800 border-slate-600 text-white" : ""}`}
+                              className={`mt-1 rounded-xl ${darkMode ? "bg-slate-800 border-slate-600 text-white" : ""}`}
                             >
                               <SelectValue placeholder="Seleccione el tipo" />
                             </SelectTrigger>
@@ -869,20 +1073,20 @@ export default function LibroReclamaciones() {
                             value={formData.asunto}
                             onChange={(e) => handleInputChange("asunto", e.target.value)}
                             placeholder="Asunto del reclamo"
-                            className={`mt-1 ${darkMode ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : ""}`}
+                            className={`mt-1 rounded-xl ${darkMode ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : ""}`}
                           />
                           {errors.asunto && <p className="mt-1 text-xs text-red-500">{errors.asunto}</p>}
                         </div>
                       </div>
                       <div>
-                        <Label htmlFor="descripcion">Descripción *</Label>
+                        <Label htmlFor="descripcion">Descripcion *</Label>
                         <Textarea
                           id="descripcion"
                           value={formData.descripcion}
                           onChange={(e) => handleInputChange("descripcion", e.target.value)}
                           placeholder="Describa detalladamente su reclamo..."
                           rows={5}
-                          className={`mt-1 ${darkMode ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : ""}`}
+                          className={`mt-1 rounded-xl ${darkMode ? "bg-slate-800 border-slate-600 text-white placeholder:text-slate-500" : ""}`}
                         />
                         {errors.descripcion && <p className="mt-1 text-xs text-red-500">{errors.descripcion}</p>}
                       </div>
@@ -892,21 +1096,27 @@ export default function LibroReclamaciones() {
                   {/* Attachments Section */}
                   <div>
                     <h4
-                      className={`text-sm font-semibold uppercase tracking-wider mb-4 ${
-                        darkMode ? "text-slate-400" : "text-slate-500"
+                      className={`text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2 ${
+                        darkMode ? "text-slate-300" : "text-slate-700"
                       }`}
                     >
+                      <span
+                        className="w-6 h-6 rounded-full text-white text-xs flex items-center justify-center"
+                        style={{ backgroundColor: accentColor }}
+                      >
+                        3
+                      </span>
                       Archivos Adjuntos
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Images Upload */}
                       <div>
-                        <Label className={darkMode ? "text-slate-300" : ""}>Imágenes</Label>
+                        <Label className={darkMode ? "text-slate-300" : ""}>Imagenes</Label>
                         <div
-                          className={`mt-1 border-2 border-dashed rounded-xl p-4 text-center transition-colors ${
+                          className={`mt-1 border-2 border-dashed rounded-2xl p-6 text-center transition-all duration-300 cursor-pointer ${
                             darkMode
-                              ? "border-slate-600 hover:border-slate-500 bg-slate-800/50"
-                              : "border-slate-300 hover:border-blue-400 bg-slate-50"
+                              ? "border-slate-600 hover:border-slate-500 bg-slate-800/50 hover:bg-slate-800"
+                              : "border-slate-300 hover:border-blue-400 bg-slate-50 hover:bg-blue-50"
                           }`}
                         >
                           <input
@@ -919,10 +1129,13 @@ export default function LibroReclamaciones() {
                           />
                           <label htmlFor="images-upload" className="cursor-pointer">
                             <Icons.Upload
-                              className={`w-8 h-8 mx-auto mb-2 ${darkMode ? "text-slate-500" : "text-slate-400"}`}
+                              className={`w-10 h-10 mx-auto mb-2 ${darkMode ? "text-slate-500" : "text-slate-400"}`}
                             />
-                            <p className={`text-sm ${darkMode ? "text-slate-400" : "text-slate-500"}`}>
-                              Click para subir imágenes
+                            <p className={`text-sm font-medium ${darkMode ? "text-slate-400" : "text-slate-500"}`}>
+                              Click para subir imagenes
+                            </p>
+                            <p className={`text-xs mt-1 ${darkMode ? "text-slate-500" : "text-slate-400"}`}>
+                              PNG, JPG hasta 5MB
                             </p>
                           </label>
                         </div>
@@ -933,12 +1146,12 @@ export default function LibroReclamaciones() {
                                 <img
                                   src={preview || "/placeholder.svg"}
                                   alt={`Preview ${idx + 1}`}
-                                  className={`w-24 h-24 object-cover rounded-lg border ${darkMode ? "border-slate-600" : "border-slate-200"}`}
+                                  className={`w-20 h-20 object-cover rounded-xl border-2 ${darkMode ? "border-slate-600" : "border-slate-200"}`}
                                 />
                                 <button
                                   type="button"
                                   onClick={() => removeImage(idx)}
-                                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
                                 >
                                   <Icons.X className="w-4 h-4" />
                                 </button>
@@ -951,10 +1164,10 @@ export default function LibroReclamaciones() {
                       <div>
                         <Label className={darkMode ? "text-slate-300" : ""}>Documentos</Label>
                         <div
-                          className={`mt-1 border-2 border-dashed rounded-xl p-4 text-center transition-colors ${
+                          className={`mt-1 border-2 border-dashed rounded-2xl p-6 text-center transition-all duration-300 cursor-pointer ${
                             darkMode
-                              ? "border-slate-600 hover:border-slate-500 bg-slate-800/50"
-                              : "border-slate-300 hover:border-blue-400 bg-slate-50"
+                              ? "border-slate-600 hover:border-slate-500 bg-slate-800/50 hover:bg-slate-800"
+                              : "border-slate-300 hover:border-blue-400 bg-slate-50 hover:bg-blue-50"
                           }`}
                         >
                           <input
@@ -967,10 +1180,13 @@ export default function LibroReclamaciones() {
                           />
                           <label htmlFor="documents-upload" className="cursor-pointer">
                             <Icons.FileText
-                              className={`w-8 h-8 mx-auto mb-2 ${darkMode ? "text-slate-500" : "text-slate-400"}`}
+                              className={`w-10 h-10 mx-auto mb-2 ${darkMode ? "text-slate-500" : "text-slate-400"}`}
                             />
-                            <p className={`text-sm ${darkMode ? "text-slate-400" : "text-slate-500"}`}>
+                            <p className={`text-sm font-medium ${darkMode ? "text-slate-400" : "text-slate-500"}`}>
                               Click para subir documentos
+                            </p>
+                            <p className={`text-xs mt-1 ${darkMode ? "text-slate-500" : "text-slate-400"}`}>
+                              PDF, DOC hasta 10MB
                             </p>
                           </label>
                         </div>
@@ -979,17 +1195,24 @@ export default function LibroReclamaciones() {
                             {documents.map((doc, idx) => (
                               <div
                                 key={idx}
-                                className={`flex items-center justify-between p-2 rounded-lg ${
+                                className={`flex items-center justify-between p-3 rounded-xl ${
                                   darkMode ? "bg-slate-800" : "bg-slate-100"
                                 }`}
                               >
-                                <span className={`text-sm truncate ${darkMode ? "text-slate-300" : "text-slate-700"}`}>
-                                  {doc.name}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                  <Icons.FileText
+                                    className={`w-4 h-4 ${darkMode ? "text-slate-400" : "text-slate-500"}`}
+                                  />
+                                  <span
+                                    className={`text-sm truncate ${darkMode ? "text-slate-300" : "text-slate-700"}`}
+                                  >
+                                    {doc.name}
+                                  </span>
+                                </div>
                                 <button
                                   type="button"
                                   onClick={() => removeDocument(idx)}
-                                  className="text-red-500 hover:text-red-700"
+                                  className="text-red-500 hover:text-red-700 p-1"
                                 >
                                   <Icons.X className="w-4 h-4" />
                                 </button>
@@ -1005,12 +1228,12 @@ export default function LibroReclamaciones() {
                   <div className="pt-4">
                     <Button
                       type="submit"
-                      disabled={loading || !selectedSucursal || !selectedEjecutivo}
-                      className={`w-full py-3 text-base font-semibold rounded-xl transition-all duration-200 ${
-                        darkMode
-                          ? "bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 disabled:from-slate-700 disabled:to-slate-700"
-                          : "bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400"
-                      }`}
+                      disabled={loading || !selectedSucursal}
+                      className="w-full py-4 text-base font-bold rounded-2xl transition-all duration-300 text-white disabled:opacity-50"
+                      style={{
+                        backgroundColor: accentColor,
+                        boxShadow: !loading && selectedSucursal ? `0 8px 25px ${accentColor}40` : "none",
+                      }}
                     >
                       {loading ? (
                         <span className="flex items-center justify-center gap-2">
@@ -1020,10 +1243,18 @@ export default function LibroReclamaciones() {
                       ) : (
                         <span className="flex items-center justify-center gap-2">
                           <Icons.Send className="w-5 h-5" />
-                          Enviar Reclamación
+                          Enviar Reclamacion
                         </span>
                       )}
                     </Button>
+
+                    {/* Response time note */}
+                    <div
+                      className={`flex items-center justify-center gap-2 mt-4 ${darkMode ? "text-slate-400" : "text-slate-500"}`}
+                    >
+                      <Icons.Clock className="w-4 h-4" />
+                      <span className="text-sm">Respuesta estimada en 24-48h</span>
+                    </div>
                   </div>
                 </form>
               </div>
@@ -1032,26 +1263,33 @@ export default function LibroReclamaciones() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Summary Card */}
             <div
-              className={`rounded-2xl border shadow-sm overflow-hidden ${
+              className={`rounded-2xl border shadow-lg overflow-hidden ${
                 darkMode ? "bg-slate-900/80 border-slate-700/50 backdrop-blur-sm" : "bg-white border-slate-200"
               }`}
             >
-              <div className={`px-6 py-4 border-b ${darkMode ? "border-slate-700/50" : "border-slate-100"}`}>
+              <div
+                className="px-6 py-4 border-b"
+                style={{
+                  borderColor: darkMode ? "rgba(71, 85, 105, 0.5)" : "rgba(226, 232, 240, 1)",
+                  background: darkMode
+                    ? `linear-gradient(135deg, ${accentColor}15, transparent)`
+                    : `linear-gradient(135deg, ${accentColor}08, transparent)`,
+                }}
+              >
                 <h3
-                  className={`text-sm font-semibold uppercase tracking-wider flex items-center gap-2 ${
-                    darkMode ? "text-slate-400" : "text-slate-500"
+                  className={`text-sm font-bold uppercase tracking-wider flex items-center gap-2 ${
+                    darkMode ? "text-slate-300" : "text-slate-700"
                   }`}
                 >
-                  <Icons.FileText className={`w-5 h-5 ${darkMode ? "text-blue-400" : "text-blue-600"}`} />
+                  <Icons.FileText className="w-5 h-5" style={{ color: accentColor }} />
                   Resumen
                 </h3>
               </div>
               <div className="p-6 space-y-4">
                 <div>
                   <p
-                    className={`text-xs font-medium uppercase tracking-wider ${darkMode ? "text-slate-500" : "text-slate-400"}`}
+                    className={`text-xs font-semibold uppercase tracking-wider ${darkMode ? "text-slate-500" : "text-slate-400"}`}
                   >
                     Sucursal
                   </p>
@@ -1065,59 +1303,84 @@ export default function LibroReclamaciones() {
                 </div>
                 <div>
                   <p
-                    className={`text-xs font-medium uppercase tracking-wider ${darkMode ? "text-slate-500" : "text-slate-400"}`}
+                    className={`text-xs font-semibold uppercase tracking-wider ${darkMode ? "text-slate-500" : "text-slate-400"}`}
                   >
                     Ejecutivo
                   </p>
                   {selectedEjecutivo ? (
-                    <p className={`text-sm font-medium mt-1 ${darkMode ? "text-white" : "text-slate-900"}`}>
+                    <p className={`text-sm font-semibold mt-1 ${darkMode ? "text-white" : "text-slate-900"}`}>
                       {selectedEjecutivo.name} {selectedEjecutivo.lastname}
                     </p>
                   ) : (
                     <p className={`text-sm ${darkMode ? "text-slate-500" : "text-slate-400"}`}>No seleccionado</p>
                   )}
                 </div>
+                <div>
+                  <p
+                    className={`text-xs font-semibold uppercase tracking-wider ${darkMode ? "text-slate-500" : "text-slate-400"}`}
+                  >
+                    Tipo de reclamo
+                  </p>
+                  <p className={`text-sm font-medium mt-1 capitalize ${darkMode ? "text-white" : "text-slate-900"}`}>
+                    {formData.tipo_reclamo || "No seleccionado"}
+                  </p>
+                </div>
+                <div>
+                  <p
+                    className={`text-xs font-semibold uppercase tracking-wider ${darkMode ? "text-slate-500" : "text-slate-400"}`}
+                  >
+                    Estado
+                  </p>
+                  <Badge
+                    className="mt-1"
+                    style={{
+                      backgroundColor: darkMode ? `${accentColor}20` : `${accentColor}15`,
+                      color: accentColor,
+                    }}
+                  >
+                    Pendiente de envio
+                  </Badge>
+                </div>
               </div>
             </div>
 
-            {/* Tips Card */}
             <div
-              className={`rounded-2xl border shadow-sm overflow-hidden ${
+              className={`rounded-2xl border shadow-lg overflow-hidden ${
                 darkMode ? "bg-slate-900/80 border-slate-700/50 backdrop-blur-sm" : "bg-white border-slate-200"
               }`}
             >
               <div className={`px-6 py-4 border-b ${darkMode ? "border-slate-700/50" : "border-slate-100"}`}>
                 <h3
-                  className={`text-sm font-semibold uppercase tracking-wider flex items-center gap-2 ${
-                    darkMode ? "text-slate-400" : "text-slate-500"
+                  className={`text-sm font-bold uppercase tracking-wider flex items-center gap-2 ${
+                    darkMode ? "text-slate-300" : "text-slate-700"
                   }`}
                 >
-                  <Icons.Lightbulb className={`w-5 h-5 ${darkMode ? "text-yellow-400" : "text-yellow-500"}`} />
+                  <Icons.Lightbulb className="w-5 h-5 text-yellow-500" />
                   Tips
                 </h3>
               </div>
               <div className="p-6">
                 <ul className={`space-y-3 text-sm ${darkMode ? "text-slate-400" : "text-slate-600"}`}>
-                  <li className="flex items-start gap-2">
-                    <Icons.Check className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+                  <li className="flex items-start gap-3">
+                    <Icons.Check className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
                     <span>Describe el problema con fechas y evidencias.</span>
                   </li>
-                  <li className="flex items-start gap-2">
-                    <Icons.Check className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-                    <span>Sube imágenes o documentos claros.</span>
+                  <li className="flex items-start gap-3">
+                    <Icons.Check className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
+                    <span>Sube imagenes o documentos claros.</span>
                   </li>
-                  <li className="flex items-start gap-2">
-                    <Icons.Check className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+                  <li className="flex items-start gap-3">
+                    <Icons.Check className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
                     <span>Selecciona sucursal y ejecutivo antes de enviar.</span>
                   </li>
                 </ul>
-                <div className={`mt-4 pt-4 border-t ${darkMode ? "border-slate-700" : "border-slate-100"}`}>
-                  <div className="flex items-center gap-2">
-                    <Icons.Clock className={`w-4 h-4 ${darkMode ? "text-slate-500" : "text-slate-400"}`} />
-                    <span className={`text-xs ${darkMode ? "text-slate-500" : "text-slate-500"}`}>
-                      Respuesta en 24-48h
-                    </span>
-                  </div>
+                <div
+                  className={`mt-5 pt-4 border-t flex items-center gap-2 ${darkMode ? "border-slate-700" : "border-slate-100"}`}
+                >
+                  <Icons.Clock className={`w-5 h-5 ${darkMode ? "text-slate-500" : "text-slate-400"}`} />
+                  <span className={`text-sm font-medium ${darkMode ? "text-slate-400" : "text-slate-500"}`}>
+                    Respuesta en 24-48h
+                  </span>
                 </div>
               </div>
             </div>
@@ -1129,9 +1392,7 @@ export default function LibroReclamaciones() {
           <section className="mt-12">
             <div className="mb-6">
               <h3 className={`text-2xl font-bold ${darkMode ? "text-white" : "text-slate-900"}`}>
-                <Icons.FileText
-                  className={`inline-block w-5 h-5 mr-2 ${darkMode ? "text-blue-400" : "text-blue-600"}`}
-                />
+                <Icons.FileText className="inline-block w-6 h-6 mr-2" style={{ color: accentColor }} />
                 Listado de Reclamaciones
               </h3>
               <p className={`text-sm ${darkMode ? "text-slate-400" : "text-slate-500"}`}>
@@ -1141,8 +1402,8 @@ export default function LibroReclamaciones() {
 
             {/* Filters */}
             <div
-              className={`rounded-xl shadow-sm border p-4 mb-6 transition-colors duration-300 ${
-                darkMode ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"
+              className={`rounded-2xl shadow-lg border p-4 mb-6 transition-colors duration-300 ${
+                darkMode ? "bg-slate-900/80 border-slate-700/50 backdrop-blur-sm" : "bg-white border-slate-200"
               }`}
             >
               <div className="flex flex-col sm:flex-row gap-4">
@@ -1154,12 +1415,14 @@ export default function LibroReclamaciones() {
                     placeholder="Buscar por numero, nombre o asunto..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className={`pl-10 ${darkMode ? "bg-slate-800 border-slate-700 text-slate-300" : ""}`}
+                    className={`pl-10 rounded-xl ${darkMode ? "bg-slate-800 border-slate-700 text-slate-300" : ""}`}
                   />
                 </div>
                 <div className="sm:w-48">
                   <Select value={filtroEstado} onValueChange={setFiltroEstado}>
-                    <SelectTrigger className={darkMode ? "bg-slate-800 border-slate-700 text-slate-300" : ""}>
+                    <SelectTrigger
+                      className={`rounded-xl ${darkMode ? "bg-slate-800 border-slate-700 text-slate-300" : ""}`}
+                    >
                       <SelectValue placeholder="Filtrar estado" />
                     </SelectTrigger>
                     <SelectContent className={darkMode ? "bg-slate-800 border-slate-700 text-slate-300" : ""}>
@@ -1179,8 +1442,8 @@ export default function LibroReclamaciones() {
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className={`rounded-xl shadow-sm border p-5 transition-colors duration-300 ${
-                      darkMode ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"
+                    className={`rounded-2xl shadow-lg border p-5 transition-colors duration-300 ${
+                      darkMode ? "bg-slate-900/80 border-slate-700/50" : "bg-white border-slate-200"
                     }`}
                   >
                     <div className="flex justify-between items-start">
@@ -1202,13 +1465,12 @@ export default function LibroReclamaciones() {
               </div>
             ) : filteredReclamaciones.length === 0 ? (
               <div
-                className={`rounded-xl shadow-sm border p-12 text-center transition-colors duration-300 ${
-                  darkMode ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"
+                className={`rounded-2xl shadow-lg border p-12 text-center transition-colors duration-300 ${
+                  darkMode ? "bg-slate-900/80 border-slate-700/50" : "bg-white border-slate-200"
                 }`}
               >
                 <Icons.FileText
-                  className={`w-5 h-5 mx-auto mb-4 ${darkMode ? "text-slate-400" : "text-slate-300"}`}
-                  style={{ minWidth: "20px" }}
+                  className={`w-12 h-12 mx-auto mb-4 ${darkMode ? "text-slate-600" : "text-slate-300"}`}
                 />
                 <h4 className={`text-lg font-semibold mb-2 ${darkMode ? "text-white" : "text-slate-900"}`}>
                   No se encontraron reclamaciones
@@ -1224,9 +1486,9 @@ export default function LibroReclamaciones() {
                 {filteredReclamaciones.map((reclamacion) => (
                   <div
                     key={reclamacion.id}
-                    className={`rounded-xl shadow-sm border p-5 hover:shadow-md transition-all duration-200 ${
+                    className={`rounded-2xl shadow-lg border p-5 hover:shadow-xl transition-all duration-300 ${
                       darkMode
-                        ? "bg-slate-900 border-slate-700 hover:border-slate-600"
+                        ? "bg-slate-900/80 border-slate-700/50 hover:border-slate-600"
                         : "bg-white border-slate-200 hover:border-blue-300"
                     }`}
                   >
@@ -1239,9 +1501,12 @@ export default function LibroReclamaciones() {
                           >
                             {reclamacion.numero_reclamacion || `#${reclamacion.id}`}
                           </span>
-                          <Badge variant={getEstadoBadge(reclamacion.estado)}>
-                            {getEstadoTexto(reclamacion.estado)}
-                          </Badge>
+                          {/* CHANGE: Added conditional rendering to prevent undefined error */}
+                          {reclamacion.estado && (
+                            <Badge variant={getEstadoBadge(reclamacion.estado)}>
+                              {getEstadoTexto(reclamacion.estado)}
+                            </Badge>
+                          )}
                         </div>
 
                         {/* Title */}
@@ -1263,7 +1528,7 @@ export default function LibroReclamaciones() {
                             className={`w-7 h-7 rounded-full object-cover border ${darkMode ? "border-slate-600" : "border-slate-200"}`}
                             onError={(e) => {
                               const target = e.target as HTMLImageElement
-                              target.onerror = null // Prevent infinite loop
+                              target.onerror = null
                               target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(reclamacion.ejecutive?.name + " " + reclamacion.ejecutive?.lastname)}&background=random&color=fff&size=28`
                             }}
                           />
@@ -1300,7 +1565,7 @@ export default function LibroReclamaciones() {
                         variant="outline"
                         size="sm"
                         onClick={() => setSelectedReclamacion(reclamacion)}
-                        className={darkMode ? "border-slate-600 text-slate-300 hover:bg-slate-800" : ""}
+                        className={`rounded-xl ${darkMode ? "border-slate-600 text-slate-300 hover:bg-slate-800" : ""}`}
                       >
                         <Icons.Eye className="w-4 h-4 mr-1" />
                         {userData ? "Gestionar" : "Ver detalle"}
@@ -1318,7 +1583,7 @@ export default function LibroReclamaciones() {
                   variant="outline"
                   onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
-                  className={darkMode ? "border-slate-600 text-slate-300 hover:bg-slate-800" : ""}
+                  className={`rounded-xl ${darkMode ? "border-slate-600 text-slate-300 hover:bg-slate-800" : ""}`}
                 >
                   Anterior
                 </Button>
@@ -1329,7 +1594,7 @@ export default function LibroReclamaciones() {
                   variant="outline"
                   onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
-                  className={darkMode ? "border-slate-600 text-slate-300 hover:bg-slate-800" : ""}
+                  className={`rounded-xl ${darkMode ? "border-slate-600 text-slate-300 hover:bg-slate-800" : ""}`}
                 >
                   Siguiente
                 </Button>
@@ -1358,7 +1623,6 @@ export default function LibroReclamaciones() {
       )}
 
       <ChatbotWidget webhookUrl="https://paneln8n.fastnetperu.com.pe/webhook/reclamos" darkMode={darkMode} />
-      {/* Add the Footer component */}
       <Footer darkMode={darkMode} />
     </div>
   )
