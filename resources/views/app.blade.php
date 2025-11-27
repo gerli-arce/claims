@@ -5,6 +5,26 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>FASTNETPERU - Libro de Reclamaciones</title>
+    <meta name="description" content="Registra tu reclamo o sugerencia en FASTNETPERU y recibe atención rápida sobre nuestros servicios de TV, Internet e IPTV.">
+    <meta name="keywords" content="fastnetperu, libro de reclamaciones, reclamos, soporte, internet, tv, iptv">
+    <meta name="author" content="FASTNETPERU">
+    <link rel="canonical" href="{{ url()->current() }}">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="FASTNETPERU - Libro de Reclamaciones">
+    <meta property="og:description" content="Gestiona tus reclamos o sugerencias y recibe soporte de nuestro equipo.">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="{{ url(asset('assets/img/logo-light.png')) }}">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
+    <meta property="og:site_name" content="FASTNETPERU">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="FASTNETPERU - Libro de Reclamaciones">
+    <meta name="twitter:description" content="Registra tu reclamo o sugerencia y te ayudamos cuanto antes.">
+    <meta name="twitter:image" content="{{ url(asset('assets/img/logo-light.png')) }}">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
